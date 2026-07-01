@@ -85,8 +85,12 @@ nav{
   display:flex; align-items:center; justify-content:space-between;
   padding:18px 32px;
   border-bottom:1px solid transparent;
-  transition:background var(--t-med) var(--ease), border-color var(--t-med) var(--ease), backdrop-filter var(--t-med);
+  opacity:0; transform:translateY(-10px);
+  transition:opacity 550ms var(--ease), transform 550ms var(--ease),
+             background var(--t-med) var(--ease), border-color var(--t-med) var(--ease), backdrop-filter var(--t-med);
 }
+nav.nav-in{ opacity:1; transform:none; }
+@media (prefers-reduced-motion: reduce){ nav{ opacity:1; transform:none; } }
 nav.scrolled{
   background:rgba(11,10,8,.78);
   backdrop-filter:blur(14px);
@@ -230,11 +234,19 @@ nav.scrolled{
 }
 .nav-links{ display:flex; gap:28px; list-style:none; }
 .nav-links a{
+  position:relative;
   font-family:var(--font-mono); font-size:.72rem; letter-spacing:.08em;
   color:var(--ink-faint); text-transform:uppercase;
   transition:color var(--t-med) var(--ease);
 }
 .nav-links a:hover, .nav-links a.active{ color:var(--gold); }
+.nav-links a::after{
+  content:""; position:absolute; left:0; right:0; bottom:-5px; height:1px;
+  background:var(--gold);
+  opacity:0; transform:scaleX(0); transform-origin:left;
+  transition:opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease);
+}
+.nav-links a.active::after{ opacity:1; transform:scaleX(1); }
 .nav-toggle{ display:none; background:none; border:1px solid var(--line); color:var(--gold); font-family:var(--font-mono); font-size:.72rem; padding:6px 12px; border-radius:4px; cursor:pointer; }
 
 @media (max-width: 800px){
@@ -282,11 +294,20 @@ section{ padding:110px 0; }
   min-height:100vh; display:flex; align-items:center;
   padding:140px 0 90px; position:relative;
 }
+@media (max-height:640px){
+  .hero{ min-height:auto; padding:104px 0 64px; }
+}
 .hero::after{ /* faint gold radial glow */
   content:""; position:absolute; inset:0; pointer-events:none;
   background:radial-gradient(ellipse 60% 45% at 50% 38%, rgba(212,175,55,.07), transparent 70%);
 }
 .hero-inner{ position:relative; z-index:2; }
+.hero-anim{
+  opacity:0; transform:translateY(20px);
+  transition:opacity 700ms var(--ease) var(--d, 0ms), transform 700ms var(--ease) var(--d, 0ms);
+}
+.hero-anim.in{ opacity:1; transform:none; }
+@media (prefers-reduced-motion: reduce){ .hero-anim{ opacity:1; transform:none; } }
 .hero .eyebrow{ margin-bottom:22px; }
 .hero h1{
   font-size:clamp(2.6rem, 6.5vw, 4.6rem);
@@ -612,19 +633,19 @@ footer{
 <!-- ============================ HERO ============================ -->
 <section class="hero">
   <div class="wrap hero-inner">
-    <span class="eyebrow">software_engineer · backend_systems</span>
-    <h1>Nazrin Afzal<span class="gold">.</span></h1>
-    <p class="role"><span id="typedText">Software Engineer — Backend &amp; Payments</span><span class="cursor" aria-hidden="true"></span></p>
-    <p class="tagline">
+    <span class="eyebrow hero-anim" style="--d:0ms">software_engineer · backend_systems</span>
+    <h1 class="hero-anim" style="--d:90ms">Nazrin Afzal<span class="gold">.</span></h1>
+    <p class="role hero-anim" style="--d:180ms"><span id="typedText">Software Engineer — Backend &amp; Payments</span><span class="cursor" aria-hidden="true"></span></p>
+    <p class="tagline hero-anim" style="--d:270ms">
       I design and maintain high-availability backend systems for payment and enterprise
       environments — transaction engines, RESTful APIs, and scalable services built with
       PHP (Laravel) and Golang.
     </p>
-    <div class="hero-cta">
+    <div class="hero-cta hero-anim" style="--d:360ms">
       <a class="btn btn-gold" href="#experience">View experience</a>
       <a class="btn btn-ghost" href="#" id="heroContact">Get in touch</a>
     </div>
-    <div class="hero-meta">
+    <div class="hero-meta hero-anim" style="--d:450ms">
       <div><b class="countup" data-target="4" data-suffix="+">0+</b>years in backend engineering</div>
       <div><b class="countup" data-target="6">0</b>companies, fintech to gov-tech</div>
       <div><b class="countup" data-target="2">0</b>core stacks — Laravel · Golang</div>
@@ -660,7 +681,7 @@ footer{
       <aside class="about-side reveal">
         <h4>// at_a_glance</h4>
         <ul>
-          <li><span>Current</span><span>Razer Merchant Services</span></li>
+          <li><span>Current</span><span>Fiuu (formerly Razer Merchant Services)</span></li>
           <li><span>Level</span><span>Software Engineer, E2</span></li>
           <li><span>Domain</span><span>Fintech / Payments</span></li>
           <li><span>Primary</span><span>Laravel · Golang</span></li>
@@ -684,7 +705,7 @@ footer{
 
       <article class="job reveal">
         <div class="job-head">
-          <h3>Razer Merchant Services Sdn Bhd</h3>
+          <h3>Fiuu <span style="color:var(--ink-faint); font-weight:400;">(formerly Razer Merchant Services Sdn Bhd)</span></h3>
           <span class="job-date">May 2025 — Present</span>
         </div>
         <p class="job-role">Software Engineer, E2 · Fintech / Payment Gateway</p>
@@ -929,7 +950,7 @@ footer{
 
       <section class="slide">
         <span class="eyebrow">experience — 03</span>
-        <h3>Razer Merchant Services</h3>
+        <h3>Fiuu <span style="color:var(--ink-faint); font-weight:400; font-size:.7em;">(formerly Razer Merchant Services)</span></h3>
         <p class="slide-sub">Software Engineer, E2 · Fintech / Payment Gateway · May 2025 — Present</p>
         <ul>
           <li>High-availability payment gateway services for enterprise merchants — Shopee, TikTok, Zus Coffee — across credit/debit, BNPL, recurring billing, and DuitNow QR.</li>
@@ -1285,6 +1306,14 @@ footer{
   var nav = document.getElementById('nav');
   var toggle = document.getElementById('navToggle');
   var links = document.getElementById('navLinks');
+
+  // entrance animation: nav fades in first, hero content cascades after
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      nav.classList.add('nav-in');
+      document.querySelectorAll('.hero-anim').forEach(function(el){ el.classList.add('in'); });
+    });
+  });
 
   // nav background on scroll
   function onScroll(){
