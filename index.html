@@ -401,6 +401,34 @@ section{ padding:110px 0; }
 .job li::before{ content:"—"; position:absolute; left:0; color:var(--gold-dim); }
 .metric{ color:var(--gold); font-weight:500; }
 
+/* collapsible job details — mobile/small screens only */
+.job-toggle{ display:none; }
+@media (max-width:700px){
+  .job-toggle{
+    display:flex; align-items:center; gap:8px;
+    width:100%; margin-top:2px; padding:12px 0 0;
+    border:none; border-top:1px solid var(--line-soft); background:none;
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--gold-dim); cursor:pointer;
+    transition:color var(--t-med) var(--ease);
+  }
+  .job-toggle:hover, .job-toggle:focus-visible{ color:var(--gold); }
+  .job-toggle .hide-label{ display:none; }
+  .job.open .job-toggle .show-label{ display:none; }
+  .job.open .job-toggle .hide-label{ display:inline; }
+  .job-chevron{
+    width:14px; height:14px; flex-shrink:0;
+    transition:transform var(--t-med) var(--ease);
+  }
+  .job.open .job-chevron{ transform:rotate(180deg); }
+  .job-details{
+    max-height:0; overflow:hidden;
+    transition:max-height var(--t-med) var(--ease);
+  }
+  .job-details ul{ padding-top:16px; }
+  .job.open .job-details{ max-height:1000px; }
+}
+
 /* ============================================================
    FREELANCE — card grid
    ============================================================ */
@@ -703,23 +731,29 @@ footer{
 
     <div class="timeline">
 
-      <article class="job reveal">
+      <article class="job reveal open">
         <div class="job-head">
           <h3>Fiuu <span style="color:var(--ink-faint); font-weight:400;">(formerly Razer Merchant Services Sdn Bhd)</span></h3>
           <span class="job-date">May 2025 — Present</span>
         </div>
         <p class="job-role">Software Engineer, E2 · Fintech / Payment Gateway</p>
-        <ul>
-          <li>Develop and maintain high-availability payment gateway services supporting enterprise merchants (<span class="metric">Shopee, TikTok, Zus Coffee</span>) — enabling credit/debit, BNPL, recurring billing, and DuitNow QR transactions at scale.</li>
-          <li>Designed and developed Golang-based microservices including a <span class="metric">DuitNow QR transaction engine</span> integrated into the core payment gateway, handling real-time transaction generation and validation.</li>
-          <li>Design and optimize RESTful APIs and transactional workflows using PHP (Laravel), contributing to scalable backend services handling high-volume payment processing.</li>
-          <li>Implemented and maintained message queue systems using RabbitMQ and Redis for asynchronous payment event processing, improving system throughput and decoupling service dependencies.</li>
-          <li>Implement background workers, cron jobs, and asynchronous processing to improve system scalability and reliability.</li>
-          <li>Manage MySQL and CouchDB databases, optimizing queries and ensuring transactional integrity across high-volume production environments.</li>
-          <li>Containerize services with Docker and write automated tests (PHPUnit) to maintain deployment consistency and code quality.</li>
-          <li>Configured CORS policies, SSL/TLS certificates, and CDN settings for backend APIs to ensure secure, compliant, and performant service delivery across regions.</li>
-          <li>Monitor production systems, troubleshoot payment-related incidents, and collaborate cross-functionally to ensure system uptime and transaction reliability.</li>
-        </ul>
+        <button class="job-toggle" aria-expanded="true" aria-controls="job-details-fiuu">
+          <svg class="job-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          <span class="show-label">Show details</span><span class="hide-label">Hide details</span>
+        </button>
+        <div class="job-details" id="job-details-fiuu">
+          <ul>
+            <li>Develop and maintain high-availability payment gateway services supporting enterprise merchants (<span class="metric">Shopee, TikTok, Zus Coffee</span>) — enabling credit/debit, BNPL, recurring billing, and DuitNow QR transactions at scale.</li>
+            <li>Designed and developed Golang-based microservices including a <span class="metric">DuitNow QR transaction engine</span> integrated into the core payment gateway, handling real-time transaction generation and validation.</li>
+            <li>Design and optimize RESTful APIs and transactional workflows using PHP (Laravel), contributing to scalable backend services handling high-volume payment processing.</li>
+            <li>Implemented and maintained message queue systems using RabbitMQ and Redis for asynchronous payment event processing, improving system throughput and decoupling service dependencies.</li>
+            <li>Implement background workers, cron jobs, and asynchronous processing to improve system scalability and reliability.</li>
+            <li>Manage MySQL and CouchDB databases, optimizing queries and ensuring transactional integrity across high-volume production environments.</li>
+            <li>Containerize services with Docker and write automated tests (PHPUnit) to maintain deployment consistency and code quality.</li>
+            <li>Configured CORS policies, SSL/TLS certificates, and CDN settings for backend APIs to ensure secure, compliant, and performant service delivery across regions.</li>
+            <li>Monitor production systems, troubleshoot payment-related incidents, and collaborate cross-functionally to ensure system uptime and transaction reliability.</li>
+          </ul>
+        </div>
       </article>
 
       <article class="job reveal">
@@ -728,15 +762,21 @@ footer{
           <span class="job-date">June 2023 — May 2025</span>
         </div>
         <p class="job-role">Software Engineer</p>
-        <ul>
-          <li>Delivered government tender projects for agencies including the <span class="metric">Ministry of Education (KPM)</span> and the Malaysia Office of the Chief Government Security Officer (CGSO), ensuring compliance with strict security, SSL/TLS, and scalability requirements.</li>
-          <li>Designed and developed large-scale systems to manage high volumes of sensitive user and organizational data, supporting processes from registration to full company-level data structuring.</li>
-          <li>Built applications accessible by both government staff and external stakeholders, improving usability across diverse user groups.</li>
-          <li>Developed and integrated RESTful APIs with proper CORS configuration to enable secure data exchange between internal systems and external applications.</li>
-          <li>Developed solutions using Laravel (PHP) for backend, with Angular and Next.js for frontend applications.</li>
-          <li>Managed data workflows with MySQL, PostgreSQL, and Prisma ORM to ensure reliability, integrity, and performance.</li>
-          <li>Successfully <span class="metric">led a developer team</span> in delivering a major government project, overseeing technical design, task delegation, and code quality.</li>
-        </ul>
+        <button class="job-toggle" aria-expanded="false" aria-controls="job-details-3td">
+          <svg class="job-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          <span class="show-label">Show details</span><span class="hide-label">Hide details</span>
+        </button>
+        <div class="job-details" id="job-details-3td">
+          <ul>
+            <li>Delivered government tender projects for agencies including the <span class="metric">Ministry of Education (KPM)</span> and the Malaysia Office of the Chief Government Security Officer (CGSO), ensuring compliance with strict security, SSL/TLS, and scalability requirements.</li>
+            <li>Designed and developed large-scale systems to manage high volumes of sensitive user and organizational data, supporting processes from registration to full company-level data structuring.</li>
+            <li>Built applications accessible by both government staff and external stakeholders, improving usability across diverse user groups.</li>
+            <li>Developed and integrated RESTful APIs with proper CORS configuration to enable secure data exchange between internal systems and external applications.</li>
+            <li>Developed solutions using Laravel (PHP) for backend, with Angular and Next.js for frontend applications.</li>
+            <li>Managed data workflows with MySQL, PostgreSQL, and Prisma ORM to ensure reliability, integrity, and performance.</li>
+            <li>Successfully <span class="metric">led a developer team</span> in delivering a major government project, overseeing technical design, task delegation, and code quality.</li>
+          </ul>
+        </div>
       </article>
 
       <article class="job reveal">
@@ -745,13 +785,19 @@ footer{
           <span class="job-date">Sept 2022 — May 2023</span>
         </div>
         <p class="job-role">Software Engineer, L1</p>
-        <ul>
-          <li>Contributed to Volare, an accounts receivable management solution adopted by <span class="metric">90% of Malaysia's leading debt collection agencies</span> and major banking clients including Hong Leong Bank, Bank Islam, and Bank Syariah Indonesia.</li>
-          <li>Developed and maintained core system functionalities using Laravel and MySQL, supporting a fully digitized accounts receivable management suite.</li>
-          <li>Built and optimized REST APIs to support secure data communication between Volare and client banking systems.</li>
-          <li>Participated in Agile development cycles (Scrum), collaborating with senior engineers to deliver features within tight timelines.</li>
-          <li>Contributed to code reviews and documentation, ensuring maintainability and knowledge transfer across teams.</li>
-        </ul>
+        <button class="job-toggle" aria-expanded="false" aria-controls="job-details-stampede">
+          <svg class="job-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          <span class="show-label">Show details</span><span class="hide-label">Hide details</span>
+        </button>
+        <div class="job-details" id="job-details-stampede">
+          <ul>
+            <li>Contributed to Volare, an accounts receivable management solution adopted by <span class="metric">90% of Malaysia's leading debt collection agencies</span> and major banking clients including Hong Leong Bank, Bank Islam, and Bank Syariah Indonesia.</li>
+            <li>Developed and maintained core system functionalities using Laravel and MySQL, supporting a fully digitized accounts receivable management suite.</li>
+            <li>Built and optimized REST APIs to support secure data communication between Volare and client banking systems.</li>
+            <li>Participated in Agile development cycles (Scrum), collaborating with senior engineers to deliver features within tight timelines.</li>
+            <li>Contributed to code reviews and documentation, ensuring maintainability and knowledge transfer across teams.</li>
+          </ul>
+        </div>
       </article>
 
       <article class="job reveal">
@@ -1332,6 +1378,16 @@ footer{
       links.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
     }
+  });
+
+  // collapsible job details (mobile)
+  document.querySelectorAll('.job-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var job = btn.closest('.job');
+      var open = !job.classList.contains('open');
+      job.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
   });
 
   // scroll-reveal
