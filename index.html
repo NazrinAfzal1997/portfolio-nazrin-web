@@ -175,7 +175,8 @@ nav.scrolled{
   pointer-events:none;
   transition:opacity var(--t-med) var(--ease), transform var(--t-med) var(--ease);
 }
-.slide.active{ opacity:1; transform:none; pointer-events:auto; }
+.slide.active{ opacity:1; transform:none; }
+.slideshow.open .slide.active{ pointer-events:auto; }
 .slide.prev{ transform:translateX(-28px); }
 @media (prefers-reduced-motion: reduce){
   .slide{ transform:none; }
