@@ -484,6 +484,13 @@ section{ padding:110px 0; }
 .card .tag{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; color:var(--gold); text-transform:uppercase; display:block; margin-bottom:12px; }
 .card h3{ font-size:1.05rem; margin-bottom:10px; }
 .card p{ font-size:.9rem; }
+.card-link{
+  display:inline-flex; align-items:center; gap:6px;
+  margin-top:16px; font-family:var(--font-mono); font-size:.78rem;
+  color:var(--gold-dim); letter-spacing:.03em;
+  transition:color var(--t-med) var(--ease), gap var(--t-med) var(--ease);
+}
+.card-link:hover{ color:var(--gold); gap:9px; }
 
 /* ============================================================
    SKILLS
@@ -891,6 +898,12 @@ footer{
     <span class="eyebrow reveal">projects — freelance</span>
     <h2 class="section-title reveal">Built on the side.</h2>
     <div class="cards">
+      <article class="card reveal">
+        <span class="tag">PHP · Cloudflare Workers</span>
+        <h3>Geocon (M) Sdn. Bhd. — Company Website</h3>
+        <p>Bilingual (EN/BM) marketing site for a geotechnical rehabilitation contractor. PHP templates are prebuilt into static HTML and served from Cloudflare Workers — no database, no CMS — with a serverless enquiry form via Cloudflare Email Routing.</p>
+        <a class="card-link" href="https://geoconmsb.my/en/" target="_blank" rel="noopener noreferrer">Visit site <span aria-hidden="true">→</span></a>
+      </article>
       <article class="card reveal">
         <span class="tag">Laravel Livewire</span>
         <h3>HR System — CIDB</h3>
