@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explore My Work</title>
+<meta name="description" content="Links to Nazrin Afzal's portfolio and the Tazkirah Hati Kita pages.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="32x32" href="/explore-services/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/explore-services/favicon-192.png">
+<link rel="apple-touch-icon" href="/explore-services/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:        #0B0A08;
+  --surface:   #141210;
+  --surface-2: #1A1714;
+  --line:      rgba(212,175,55,.14);
+  --gold:      #D4AF37;
+  --gold-dim:  rgba(212,175,55,.55);
+  --ink:       #EDE9E0;
+  --ink-body:  #A39E93;
+  --ink-faint: #6B665C;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ min-height:100%; }
+body{
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 0%, rgba(212,175,55,.10), transparent 70%),
+    var(--bg);
+  color:var(--ink-body);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  display:flex; justify-content:center;
+  padding:56px 16px 48px;
+}
+.grain{
+  position:fixed; inset:0; pointer-events:none; opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+a{ color:inherit; text-decoration:none; }
+:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; border-radius:12px; }
+
+main{ position:relative; width:100%; max-width:440px; }
+
+/* ---------- profile ---------- */
+.profile{ text-align:center; margin-bottom:40px; }
+.avatar{
+  width:96px; height:96px; border-radius:50%;
+  margin:0 auto 18px;
+  padding:3px;
+  background:linear-gradient(140deg, var(--gold), rgba(212,175,55,.15));
+  box-shadow:0 0 32px rgba(212,175,55,.18);
+}
+.avatar img{
+  width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;
+  background:var(--surface);
+}
+.profile h1{
+  font-family:var(--font-display); font-weight:600; color:var(--ink);
+  font-size:1.5rem; letter-spacing:-.01em;
+}
+.profile p{ margin-top:6px; font-size:.9rem; }
+
+/* ---------- groups ---------- */
+.group + .group{ margin-top:32px; }
+.label{
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-faint);
+  margin:0 4px 12px;
+}
+.label span{ color:var(--gold); }
+.links{ list-style:none; display:flex; flex-direction:column; gap:10px; }
+
+.link{
+  display:flex; align-items:center; gap:14px;
+  padding:14px 16px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:14px;
+  transition:background 300ms var(--ease), border-color 300ms var(--ease),
+             transform 300ms var(--ease), box-shadow 300ms var(--ease);
+}
+.link:hover{
+  background:var(--surface-2);
+  border-color:var(--gold-dim);
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px -12px rgba(212,175,55,.35);
+}
+.link.primary{
+  border-color:var(--gold-dim);
+  background:linear-gradient(180deg, rgba(212,175,55,.08), rgba(212,175,55,.02)), var(--surface);
+}
+.icon{
+  flex:none; width:36px; height:36px; border-radius:10px;
+  display:grid; place-items:center;
+  background:rgba(212,175,55,.08); color:var(--gold);
+}
+.icon svg{ width:18px; height:18px; }
+.text{ flex:1; min-width:0; }
+.text strong{
+  display:block; font-family:var(--font-display); font-weight:500;
+  color:var(--ink); font-size:1rem;
+}
+.text small{
+  display:block; font-size:.8rem; color:var(--ink-faint);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.arrow{
+  flex:none; color:var(--ink-faint);
+  transition:color 300ms var(--ease), transform 300ms var(--ease);
+}
+.link:hover .arrow{ color:var(--gold); transform:translate(2px,-2px); }
+
+/* ---------- brand card (Tazkirah Hati Kita) ---------- */
+.card{
+  position:relative; overflow:hidden;
+  background:
+    radial-gradient(120% 60% at 0% 0%, rgba(212,175,55,.10), transparent 60%),
+    var(--surface);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:20px;
+}
+.card::before{                       /* thin gold highlight on the top edge */
+  content:""; position:absolute; top:0; left:20px; right:20px; height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+.card-head{ margin-bottom:16px; }
+
+.brand{ display:flex; align-items:center; gap:14px; }
+.monogram{
+  flex:none; width:52px; height:52px; border-radius:14px;
+  display:grid; place-items:center;
+  font-family:var(--font-display); font-weight:600; font-size:.95rem; letter-spacing:.04em;
+  color:#0B0A08;
+  background:linear-gradient(140deg, #E6C65A, var(--gold) 45%, #A8871F);
+  box-shadow:0 8px 22px -8px rgba(212,175,55,.6), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.brand-text{ min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+.brand-text h3{
+  font-family:var(--font-display); font-weight:600; color:var(--ink);
+  font-size:1.2rem; line-height:1.2;
+}
+.tag{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 9px;
+  border:1px solid var(--gold-dim);
+  border-radius:999px;
+  background:rgba(212,175,55,.10);
+  color:var(--gold);
+  font-family:var(--font-mono); font-size:.66rem; letter-spacing:.04em;
+  white-space:nowrap;
+}
+.tag svg{ width:11px; height:11px; }
+.desc{ margin-top:16px; font-size:.88rem; line-height:1.55; }
+
+/* business-card treatment */
+.bizcard{
+  position:relative;
+  padding:20px 20px 16px;
+  border:1px solid var(--gold-dim);
+  border-radius:14px;
+  background:
+    linear-gradient(115deg, transparent 40%, rgba(255,240,200,.05) 50%, transparent 60%),
+    linear-gradient(160deg, #1D1A15, #100E0B);
+  box-shadow:0 14px 34px -18px rgba(0,0,0,.9), 0 0 0 1px rgba(0,0,0,.4);
+}
+.bizcard::after{                     /* inner engraved frame */
+  content:""; position:absolute; inset:6px;
+  border:1px solid rgba(212,175,55,.10);
+  border-radius:10px; pointer-events:none;
+}
+.biz-rule{
+  height:1px; margin:16px 0 12px;
+  background:linear-gradient(90deg, var(--gold-dim), rgba(212,175,55,.08));
+}
+.biz-foot{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  font-family:var(--font-mono); font-size:.7rem; letter-spacing:.05em;
+  color:var(--ink-faint);
+}
+.handle{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.reach{ white-space:nowrap; text-transform:uppercase; }
+.reach b{ font-family:var(--font-display); font-size:.95rem; color:var(--gold); font-weight:600; letter-spacing:0; margin-right:2px; }
+
+.socials{
+  list-style:none;
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.social{
+  display:flex; flex-direction:column; gap:10px;
+  height:100%;
+  padding:14px;
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:12px;
+  transition:border-color 300ms var(--ease), transform 300ms var(--ease),
+             box-shadow 300ms var(--ease);
+}
+.social:hover{
+  border-color:var(--gold-dim);
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px -12px rgba(212,175,55,.35);
+}
+.social-top{ display:flex; align-items:center; justify-content:space-between; }
+.social .icon{ width:32px; height:32px; border-radius:9px; }
+.social .icon svg{ width:16px; height:16px; }
+.social strong{
+  display:block; font-family:var(--font-display); font-weight:500;
+  color:var(--ink); font-size:.95rem;
+}
+.stat{
+  display:block; font-size:.78rem; color:var(--ink-faint);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.social > span:last-child{ min-width:0; }
+.stat b{ font-family:var(--font-display); font-weight:600; color:var(--gold); font-size:.9rem; }
+
+/* portfolio business card (whole card is the link) */
+.biz-link{
+  display:block;
+  transition:transform 300ms var(--ease), box-shadow 300ms var(--ease), border-color 300ms var(--ease);
+}
+.biz-link:hover{
+  transform:translateY(-3px);
+  border-color:var(--gold);
+  box-shadow:0 20px 40px -20px rgba(212,175,55,.45);
+}
+.monogram-at{ font-size:1.9rem; font-weight:600; line-height:1; padding-bottom:3px; letter-spacing:0; }
+.monogram-icon svg{ width:24px; height:24px; }
+.desc-sub{ margin-top:8px; font-size:.82rem; color:var(--ink-faint); }
+.chips{ list-style:none; display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+.chips li{
+  padding:3px 10px; border-radius:999px;
+  border:1px solid var(--line); background:rgba(212,175,55,.05);
+  font-family:var(--font-mono); font-size:.68rem; color:var(--ink-body);
+}
+.visit{
+  display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
+  padding:10px 18px;
+  border-radius:999px;
+  background:var(--gold);
+  color:#0B0A08;
+  font-family:var(--font-display); font-size:.88rem; font-weight:600;
+  letter-spacing:0; text-transform:none;
+  box-shadow:0 8px 22px -8px rgba(212,175,55,.65);
+  transition:background 250ms var(--ease), box-shadow 250ms var(--ease), transform 250ms var(--ease);
+}
+.visit svg{ width:15px; height:15px; transition:transform 250ms var(--ease); }
+.biz-link:hover .visit{
+  background:#E6C65A;
+  box-shadow:0 10px 28px -8px rgba(212,175,55,.85);
+  transform:translateY(-1px);
+}
+.biz-link:hover .visit svg{ transform:translate(2px,-2px); }
+.tag{ white-space:normal; }
+
+/* gold "open" button on each social tile, with tooltip */
+.go{
+  position:relative;
+  width:30px; height:30px; border-radius:50%;
+  display:grid; place-items:center;
+  background:var(--gold); color:#0B0A08;
+  box-shadow:0 6px 16px -6px rgba(212,175,55,.7);
+  transition:background 250ms var(--ease), transform 250ms var(--ease), box-shadow 250ms var(--ease);
+}
+.go svg{ width:14px; height:14px; transition:transform 250ms var(--ease); }
+.social:hover .go, .social:focus-visible .go{
+  background:#E6C65A; transform:scale(1.08);
+  box-shadow:0 8px 20px -6px rgba(212,175,55,.9);
+}
+.social:hover .go svg{ transform:translate(1px,-1px); }
+.go::after{                          /* tooltip bubble */
+  content:attr(data-tip);
+  position:absolute; top:50%; right:calc(100% + 10px);
+  padding:6px 10px; border-radius:8px;
+  background:#EDE9E0; color:#0B0A08;
+  font-family:var(--font-body); font-size:.74rem; font-weight:500; white-space:nowrap;
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.8);
+  opacity:0; transform:translate(4px,-50%); pointer-events:none;
+  transition:opacity 200ms var(--ease), transform 200ms var(--ease);
+}
+.go::before{                         /* tooltip pointer */
+  content:""; position:absolute; top:50%; right:calc(100% + 4px);
+  border:6px solid transparent; border-left-color:#EDE9E0; border-right:0;
+  opacity:0; transform:translate(4px,-50%); pointer-events:none;
+  transition:opacity 200ms var(--ease), transform 200ms var(--ease);
+}
+.social:hover .go::after, .social:hover .go::before,
+.social:focus-visible .go::after, .social:focus-visible .go::before{
+  opacity:1; transform:translate(0,-50%);
+}
+
+/* ---------- phone: calmer, lighter layout ---------- */
+@media (max-width: 899px){
+  body{ padding:48px 20px 56px; }
+  .profile{ margin-bottom:44px; }
+  .group + .group{ margin-top:40px; }
+
+  /* portfolio card: keep the essentials only */
+  .biz-link .tag, .desc-sub, .chips{ display:none; }
+
+  /* social: no box around the box, just the business card + a clean list */
+  .card{ background:none; border:0; padding:0; border-radius:0; overflow:visible; }
+  .card::before{ display:none; }
+  .card-head{ margin-bottom:12px; }
+
+  .socials{ grid-template-columns:1fr; gap:8px; }
+  .social{
+    flex-direction:row; align-items:center; gap:14px;
+    padding:12px 14px;
+    background:var(--surface);
+  }
+  .social-top{ display:contents; }
+  .social .icon{ order:0; }
+  .social > span:last-child{ order:1; flex:1; }
+  .go{ order:2; width:28px; height:28px; }
+  .go svg{ width:13px; height:13px; }
+  .go::before, .go::after{ display:none; }   /* no hover on phones */
+  .social strong{ font-size:.95rem; }
+}
+
+/* ---------- tabs (desktop only) ---------- */
+.tabs{ display:none; }
+
+@media (min-width: 900px){
+  body{ align-items:center; min-height:100vh; padding:48px 32px; }
+  main{
+    max-width:980px;
+    display:grid; grid-template-columns:240px 1fr; gap:56px;
+    align-items:center;
+  }
+  /* right column: tabs above the flipping card */
+  .side{ display:flex; flex-direction:column; align-items:center; min-width:0; }
+
+  /* tab pills sit above the card */
+  .tabs{
+    display:inline-flex; gap:6px;
+    padding:6px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:999px;
+    margin-bottom:28px;
+  }
+  .tab{
+    display:inline-flex; align-items:center; gap:8px;
+    background:transparent;
+    border:1px solid rgba(212,175,55,.25);
+    border-radius:999px;
+    cursor:pointer;
+    padding:10px 20px;
+    font-family:var(--font-display); font-size:.92rem; font-weight:500;
+    color:var(--ink);
+    transition:background 250ms var(--ease), color 250ms var(--ease),
+               border-color 250ms var(--ease), box-shadow 250ms var(--ease);
+  }
+  .tab:hover{ background:rgba(212,175,55,.12); border-color:var(--gold-dim); color:var(--gold); }
+  .tab[aria-selected="true"]{
+    background:var(--gold); border-color:var(--gold);
+    color:#0B0A08; font-weight:600;
+    box-shadow:0 6px 20px -6px rgba(212,175,55,.55);
+  }
+  .tab[aria-selected="true"]:hover{ color:#0B0A08; }
+  .tab:active{ transform:translateY(1px); }
+  .tab:focus-visible{ border-radius:999px; }
+
+  /* the whole display is one business card */
+  .stage{ width:100%; perspective:1800px; animation:in 700ms var(--ease) both; }
+  .deck{
+    position:relative;
+    min-height:440px;
+    display:grid;
+    padding:44px;
+    border:1px solid var(--gold-dim);
+    border-radius:22px;
+    background:
+      linear-gradient(115deg, transparent 38%, rgba(255,240,200,.045) 50%, transparent 62%),
+      radial-gradient(90% 70% at 0% 0%, rgba(212,175,55,.10), transparent 60%),
+      linear-gradient(160deg, #1D1A15, #0F0D0A);
+    box-shadow:0 40px 80px -40px rgba(0,0,0,.95), 0 0 60px -30px rgba(212,175,55,.35);
+    backface-visibility:hidden;
+  }
+  .deck::after{                       /* engraved inner frame */
+    content:""; position:absolute; inset:10px;
+    border:1px solid rgba(212,175,55,.10);
+    border-radius:15px; pointer-events:none;
+  }
+  .deck .fade{ animation:none; opacity:1; transform:none; }
+
+  .profile{ text-align:left; margin-bottom:0; align-self:center; }
+  .avatar{ width:128px; height:128px; margin:0 0 22px; }
+  .profile h1{ font-size:1.75rem; }
+
+
+  /* both panels share one grid cell, so the card is always as tall as the
+     taller panel and never changes height (no jumping when switching) */
+  .content{ display:grid; align-self:stretch; }
+  .group{ grid-area:1 / 1; align-self:center; }
+  .group + .group{ margin-top:0; }
+  .group.is-hidden{ visibility:hidden; pointer-events:none; }
+  .group .label{ display:none; }
+
+  /* inside the big card, inner cards go flat so it doesn't feel like card-in-card */
+  .deck .card, .deck .bizcard{
+    background:none; border:0; box-shadow:none; padding:0; border-radius:0; overflow:visible;
+  }
+  .deck .card::before, .deck .bizcard::after{ display:none; }
+  .deck .biz-link:hover{ transform:none; box-shadow:none; }
+  .deck .brand-text h3{ font-size:1.4rem; }
+  .deck .desc{ font-size:.95rem; }
+  .social{ padding:16px; }
+}
+
+/* ---------- entrance ---------- */
+.fade{ opacity:0; transform:translateY(8px); animation:in 600ms var(--ease) forwards; }
+@keyframes in{ to{ opacity:1; transform:none; } }
+@media (prefers-reduced-motion: reduce){
+  .fade{ opacity:1; transform:none; animation:none; }
+  .link, .arrow{ transition:none; }
+  .link:hover, .biz-link:hover{ transform:none; }
+}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<main>
+  <header class="profile fade">
+    <div class="avatar"><img src="/nazrin-3d-character-pic.jpeg" alt="Nazrin Afzal"></div>
+    <h1>Nazrin Afzal</h1>
+    <p>Software Engineer</p>
+  </header>
+
+  <div class="side">
+  <div class="tabs fade" role="tablist" aria-label="Sections" style="animation-delay:80ms">
+    <button class="tab" role="tab" id="tab-portfolio" aria-controls="portfolio" aria-selected="true">Portfolio</button>
+    <button class="tab" role="tab" id="tab-tazkirah" aria-controls="tazkirah" aria-selected="false">Social Media</button>
+  </div>
+  <div class="stage">
+  <div class="deck" id="deck">
+
+  <div class="content">
+
+  <section class="group fade" id="portfolio" role="tabpanel" aria-labelledby="tab-portfolio" style="animation-delay:120ms">
+    <h2 class="label"><span>//</span> Portfolio</h2>
+    <a class="bizcard biz-link" href="https://nazrin-afzal.my">
+      <div class="brand">
+        <span class="monogram monogram-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg>
+        </span>
+        <div class="brand-text">
+          <h3>Portfolio Website</h3>
+          <span class="tag">Software Engineer · Backend &amp; Payments</span>
+        </div>
+      </div>
+      <p class="desc">Backend engineer with 4+ years building payment and enterprise systems: transaction engines, RESTful APIs and scalable services in Laravel and Golang.</p>
+      <p class="desc-sub">Inside: experience, freelance projects, skills and contact.</p>
+      <ul class="chips" aria-label="Core stack">
+        <li>Laravel</li><li>Golang</li><li>MySQL</li><li>PostgreSQL</li><li>RabbitMQ</li><li>Redis</li>
+      </ul>
+      <div class="biz-rule" aria-hidden="true"></div>
+      <div class="biz-foot">
+        <span class="handle">nazrin-afzal.my</span>
+        <span class="visit">Visit my portfolio
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        </span>
+      </div>
+    </a>
+  </section>
+
+  <section class="group fade" id="tazkirah" role="tabpanel" aria-labelledby="tab-tazkirah" style="animation-delay:220ms">
+    <h2 class="label"><span>//</span> Social media I manage</h2>
+    <div class="card">
+      <div class="card-head bizcard">
+        <div class="brand">
+          <span class="monogram monogram-at" aria-hidden="true">@</span>
+          <div class="brand-text">
+            <h3>Tazkirah Hati Kita</h3>
+            <span class="tag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+              Managed by me
+            </span>
+          </div>
+        </div>
+        <p class="desc">Short reminders for the heart, shared across social media.</p>
+        <div class="biz-rule" aria-hidden="true"></div>
+        <div class="biz-foot">
+          <span class="handle">@tazkirahhatikita</span>
+          <span class="reach"><b>15K+</b> followers</span>
+        </div>
+      </div>
+      <!-- Follower counts as of 2026-11-24. Format: <span class="stat"><b>1,234</b> followers</span> -->
+      <ul class="socials">
+        <li>
+          <a class="social" aria-label="Open Tazkirah Hati Kita on TikTok (opens in a new tab)" href="https://www.tiktok.com/@tazkirahhatikita" target="_blank" rel="noopener">
+            <span class="social-top">
+              <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5 2.6 2.6 0 0 1-2.6-2.6 2.6 2.6 0 0 1 3.38-2.48V9.66a5.73 5.73 0 0 0-.79-.05A5.69 5.69 0 0 0 4.16 15.3 5.69 5.69 0 0 0 9.85 21a5.69 5.69 0 0 0 5.69-5.69V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.28 4.28 0 0 1-3.24-1.48Z"/></svg></span>
+              <span class="go" data-tip="Open on TikTok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+            </span>
+            <span><strong>TikTok</strong><span class="stat"><b>11.6K</b> followers</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="social" aria-label="Open Tazkirah Hati Kita on Instagram (opens in a new tab)" href="https://www.instagram.com/tazkirahhatikita" target="_blank" rel="noopener">
+            <span class="social-top">
+              <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg></span>
+              <span class="go" data-tip="Open on Instagram" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+            </span>
+            <span><strong>Instagram</strong><span class="stat"><b>1,685</b> followers</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="social" aria-label="Open Tazkirah Hati Kita on Threads (opens in a new tab)" href="https://www.threads.com/@tazkirahhatikita" target="_blank" rel="noopener">
+            <span class="social-top">
+              <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 11.2c-.3-2.6-1.9-4-4.4-4-1.7 0-3 .7-3.8 2"/><path d="M8.6 14.6c0 1.5 1.3 2.4 3 2.3 2.2-.1 3.6-1.6 3.6-5-1.6-.4-3.4-.5-4.6-.2-1.3.4-2 1.5-2 2.9Z"/><path d="M19.5 8.5C18.3 5 15.6 3 12 3 6.8 3 4 6.6 4 12s2.8 9 8 9c3.8 0 6.6-2 7.4-5"/></svg></span>
+              <span class="go" data-tip="Open on Threads" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+            </span>
+            <span><strong>Threads</strong><span class="stat"><b>1,468</b> followers</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="social" aria-label="Open Tazkirah Hati Kita on YouTube (opens in a new tab)" href="https://youtube.com/@tazkirahhatikita" target="_blank" rel="noopener">
+            <span class="social-top">
+              <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10 9.2 5 2.8-5 2.8Z" fill="currentColor"/></svg></span>
+              <span class="go" data-tip="Open on YouTube" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+            </span>
+            <span><strong>YouTube</strong><span class="stat"><b>541</b> subscribers</span></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+  </div>
+  </div>
+  </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var deck = document.getElementById('deck');
+  var desktop = window.matchMedia('(min-width: 900px)');
+  var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var current = 'portfolio', busy = false;
+
+  function select(id, focus){
+    current = id;
+    tabs.forEach(function(t){
+      var on = t.getAttribute('aria-controls') === id;
+      t.setAttribute('aria-selected', on);
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).classList.toggle('is-hidden', !on);
+      if (on && focus) t.focus();
+    });
+  }
+
+  function indexOf(id){
+    for (var i = 0; i < tabs.length; i++) if (tabs[i].getAttribute('aria-controls') === id) return i;
+    return 0;
+  }
+
+  /* Flip the whole card: rotate to edge-on, swap content, rotate back in. */
+  function go(id, focus){
+    if (id === current || busy) return;
+    try { history.replaceState(null, '', '#' + id); } catch(e){}
+    if (!desktop.matches || calm.matches || !deck.animate){ select(id, focus); return; }
+
+    busy = true;
+    var dir = indexOf(id) > indexOf(current) ? 1 : -1;   // forward flips left, back flips right
+    // update the tab pills right away so the click feels instant
+    tabs.forEach(function(t){ t.setAttribute('aria-selected', t.getAttribute('aria-controls') === id); });
+
+    /* Coin flip in two halves that join seamlessly at the edge-on moment:
+       first half speeds up (ease-in), second half slows down (ease-out),
+       and both curves have the same speed (slope 2.4) where they meet,
+       so it reads as one continuous spin. Content swaps while edge-on. */
+    var HALF = 420;
+    var out = deck.animate(
+      [
+        { transform:'rotateY(0deg) scale(1)' },
+        { transform:'rotateY(' + (-90*dir) + 'deg) scale(.92)' }
+      ],
+      { duration:HALF, easing:'cubic-bezier(.45,0,.75,.4)', fill:'forwards' }
+    );
+    out.onfinish = function(){
+      select(id, focus);
+      var back = deck.animate(
+        [
+          { transform:'rotateY(' + (90*dir) + 'deg) scale(.92)' },
+          { transform:'rotateY(0deg) scale(1)' }
+        ],
+        { duration:HALF, easing:'cubic-bezier(.25,.6,.55,1)', fill:'forwards' }
+      );
+      out.cancel();   // drop the held edge-on pose; 'back' now drives the transform
+      back.onfinish = function(){ back.cancel(); busy = false; };
+    };
+  }
+
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ go(t.getAttribute('aria-controls')); });
+    t.addEventListener('keydown', function(e){
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      var next = tabs[(i + d + tabs.length) % tabs.length];
+      go(next.getAttribute('aria-controls'), true);
+    });
+  });
+
+  select(location.hash.slice(1) === 'tazkirah' ? 'tazkirah' : 'portfolio');
+})();
+</script>
+</body>
+</html>
