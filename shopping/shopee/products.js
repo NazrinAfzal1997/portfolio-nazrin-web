@@ -5,6 +5,8 @@
     code      number shown in your video (searchable: "12", "#12", "012" all work)
     name      product name (searchable)
     category  short tag, e.g. "Beauty", "Home"; becomes a filter tab automatically
+    tags      optional extra tabs, e.g. tags: ["Baby"]; the product also shows under the "Baby" tab
+              and when someone searches "baby" (its main category stays the same)
     image     one photo: image URL, or a file path like "img/012.webp" (leave "" for a placeholder)
     images    several photos (shows < > arrows + swipe), e.g. images: ["img/012-1.webp", "img/012-2.webp"]
               use either image or images, not both
@@ -18,8 +20,8 @@ window.PRODUCTS = [
   { code: 2,  name: "Non-stick Frying Pan 28cm",        category: "Kitchen", image: "", link: "#", keywords: "kuali" },
   { code: 3,  name: "Cotton Telekung Travel Set",       category: "Fashion", image: "", link: "#", keywords: "telekung solat" },
   { code: 4,  name: "Fast Charging Cable Type-C",       category: "Gadget",  image: "", link: "#", keywords: "charger usb" },
-  { code: 5,  name: "Aloe Vera Soothing Gel",           category: "Beauty",  image: "", link: "#", keywords: "skincare" },
-  { code: 6,  name: "Airtight Rice Storage Box 10kg",   category: "Kitchen", image: "", link: "#", keywords: "bekas beras" },
+  { code: 5,  name: "Aloe Vera Soothing Gel",           category: "Beauty",  tags: ["Baby"], image: "", link: "#", keywords: "skincare" },
+  { code: 6,  name: "Airtight Rice Storage Box 10kg",   category: "Kitchen", tags: ["Baby"], image: "", link: "#", keywords: "bekas beras" },
   { code: 7,  name: "Chiffon Shawl Premium",            category: "Fashion", image: "", link: "#", keywords: "tudung shawl" },
   { code: 9,  name: "Smart LED Desk Lamp",              category: "Gadget",  image: "", link: "#", keywords: "lampu meja" }
 ];

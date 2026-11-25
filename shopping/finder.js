@@ -5,11 +5,17 @@
   Expects elements: #q #clear #searchWrap #chips #meta #grid #empty #reset
 */
 (function(){
-  const PRODUCTS = (window.PRODUCTS || []).map(p => ({
-    ...p,
-    codeNum: parseInt(String(p.code).replace(/\D/g,''), 10),
-    hay: norm([p.name, p.category, p.keywords].filter(Boolean).join(' ')).split(' ')
-  }));
+  const PRODUCTS = (window.PRODUCTS || []).map(p => {
+    const tags = (Array.isArray(p.tags) ? p.tags : [p.tags]).filter(Boolean)
+      .filter(t => t !== p.category);
+    return {
+      ...p,
+      tags,
+      groups: [p.category, ...tags].filter(Boolean),   // every tab this product appears under
+      codeNum: parseInt(String(p.code).replace(/\D/g,''), 10),
+      hay: norm([p.name, p.category, ...tags, p.keywords].filter(Boolean).join(' ')).split(' ')
+    };
+  });
   const PH = '<div class="ph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></div>';
 
   const $ = id => document.getElementById(id);
@@ -61,7 +67,7 @@
     // "#12", "code 12", "kod 12", "no. 12" -> "12"
     const tokens = norm(q.replace(/#/g,' ')).split(' ')
       .filter(t => t && !['code','kod','no','number','nombor'].includes(t));
-    let list = PRODUCTS.filter(p => activeCat === 'All' || p.category === activeCat);
+    let list = PRODUCTS.filter(p => activeCat === 'All' || p.groups.includes(activeCat));
     if (!tokens.length) return list.slice().sort((a,b) => b.codeNum - a.codeNum);
     return list
       .map(p => {
@@ -97,7 +103,7 @@
     return `<article class="card" style="animation-delay:${Math.min(i,12)*30}ms">
       <div class="thumb">${photos(p)}<span class="code">#${pad(p.codeNum)}</span></div>
       <div class="body">
-        ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
+        ${p.groups.length ? `<div class="tags">${p.groups.map(g => `<span class="tag">${esc(g)}</span>`).join('')}</div>` : ''}
         <h3 class="name">${esc(p.name)}</h3>
         <a class="buy" href="${esc(p.link || '#')}" target="_blank" rel="noopener sponsored">
           ${BUY_LABEL}
@@ -132,7 +138,8 @@
   }
 
   function buildChips(){
-    const cats = [...new Set(PRODUCTS.map(p => p.category).filter(Boolean))];
+    // Tabs: main categories first, then extra tags (e.g. "Baby")
+    const cats = [...new Set([...PRODUCTS.map(p => p.category), ...PRODUCTS.flatMap(p => p.tags)].filter(Boolean))];
     if (cats.length < 2){ chips.style.display = 'none'; return; }
     chips.innerHTML = ['All', ...cats].map(c =>
       `<button class="chip" type="button" aria-pressed="${c === activeCat}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
@@ -183,6 +190,7 @@
   // with --nav-bg, --nav-ink and --dot-on.
   const css = document.createElement('style');
   css.textContent = `
+    .tags{ display:flex; flex-wrap:wrap; gap:4px 8px; }
     .slides{ display:flex; width:100%; height:100%; overflow-x:auto; scroll-snap-type:x mandatory;
       scrollbar-width:none; overscroll-behavior-x:contain; outline:none; }
     .slides::-webkit-scrollbar{ display:none; }
