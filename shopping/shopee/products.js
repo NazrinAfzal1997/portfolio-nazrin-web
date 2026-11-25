@@ -5,7 +5,9 @@
     code      number shown in your video (searchable: "12", "#12", "012" all work)
     name      product name (searchable)
     category  short tag, e.g. "Beauty", "Home"; becomes a filter tab automatically
-    image     image URL, or a file path like "img/012.jpg" (leave "" for a placeholder)
+    image     one photo: image URL, or a file path like "img/012.webp" (leave "" for a placeholder)
+    images    several photos (shows < > arrows + swipe), e.g. images: ["img/012-1.webp", "img/012-2.webp"]
+              use either image or images, not both
     link      your Shopee affiliate link
     keywords  optional extra search words (other names, Malay words, brand), e.g. "botol air"
 

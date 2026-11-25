@@ -74,12 +74,28 @@
       .map(x => x.p);
   }
 
+  const ARROW = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+  const imgTag = (src, alt) =>
+    `<img src="${esc(src)}" alt="${esc(alt)}" loading="lazy" draggable="false" onerror="this.replaceWith(document.createRange().createContextualFragment(window.__PH))">`;
+
+  // Photos: `images: [...]` (several) or `image: "..."` (one)
+  function photos(p){
+    const list = Array.isArray(p.images) && p.images.length ? p.images : [p.image];
+    const imgs = list.filter(Boolean);
+    if (!imgs.length) return PH;
+    if (imgs.length === 1) return imgTag(imgs[0], p.name);
+    const n = imgs.length;
+    return `<div class="slides" tabindex="0" aria-label="${esc(p.name)} photos">
+        ${imgs.map((src, k) => `<div class="slide">${imgTag(src, `${p.name} (photo ${k + 1} of ${n})`)}</div>`).join('')}
+      </div>
+      <button class="nav prev" type="button" aria-label="Previous photo" hidden>${ARROW('M15 6l-6 6 6 6')}</button>
+      <button class="nav next" type="button" aria-label="Next photo">${ARROW('M9 6l6 6-6 6')}</button>
+      <div class="dots" aria-hidden="true">${imgs.map((_, k) => `<span${k ? '' : ' class="on"'}></span>`).join('')}</div>`;
+  }
+
   function card(p, i){
-    const img = p.image
-      ? `<img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy" onerror="this.replaceWith(document.createRange().createContextualFragment(window.__PH))">`
-      : PH;
     return `<article class="card" style="animation-delay:${Math.min(i,12)*30}ms">
-      <div class="thumb">${img}<span class="code">#${pad(p.codeNum)}</span></div>
+      <div class="thumb">${photos(p)}<span class="code">#${pad(p.codeNum)}</span></div>
       <div class="body">
         ${p.category ? `<span class="tag">${esc(p.category)}</span>` : ''}
         <h3 class="name">${esc(p.name)}</h3>
@@ -136,6 +152,64 @@
     chips.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x.dataset.cat === 'All'));
     render(); syncUrl();
   });
+
+  // ---------- Photo slider (cards with 2+ photos) ----------
+  // Swipe works natively via scroll-snap; the arrows scroll one photo at a time.
+  function syncSlider(track){
+    const thumb = track.parentElement;
+    const n = track.children.length;
+    const k = Math.round(track.scrollLeft / track.clientWidth);
+    thumb.querySelector('.prev').hidden = k <= 0;
+    thumb.querySelector('.next').hidden = k >= n - 1;
+    thumb.querySelectorAll('.dots span').forEach((d, j) => d.classList.toggle('on', j === k));
+  }
+  grid.addEventListener('click', e => {
+    const btn = e.target.closest('.nav'); if (!btn) return;
+    const track = btn.parentElement.querySelector('.slides');
+    track.scrollBy({ left: (btn.classList.contains('next') ? 1 : -1) * track.clientWidth, behavior: 'smooth' });
+  });
+  grid.addEventListener('scroll', e => {
+    if (e.target.classList && e.target.classList.contains('slides')) syncSlider(e.target);
+  }, true);  // scroll doesn't bubble, so listen in the capture phase
+  grid.addEventListener('keydown', e => {
+    if (!e.target.classList.contains('slides')) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
+      e.preventDefault();
+      e.target.scrollBy({ left: (e.key === 'ArrowRight' ? 1 : -1) * e.target.clientWidth, behavior: 'smooth' });
+    }
+  });
+
+  // Slider styles live here so every shop page gets them. Pages can theme them
+  // with --nav-bg, --nav-ink and --dot-on.
+  const css = document.createElement('style');
+  css.textContent = `
+    .slides{ display:flex; width:100%; height:100%; overflow-x:auto; scroll-snap-type:x mandatory;
+      scrollbar-width:none; overscroll-behavior-x:contain; outline:none; }
+    .slides::-webkit-scrollbar{ display:none; }
+    .slide{ flex:0 0 100%; height:100%; scroll-snap-align:start; scroll-snap-stop:always; }
+    .slide img, .slide .ph{ width:100%; height:100%; object-fit:cover; display:block; user-select:none; }
+    .nav{ position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+      width:32px; height:32px; border-radius:50%; border:0; cursor:pointer;
+      display:grid; place-items:center;
+      background:var(--nav-bg, rgba(255,255,255,.88)); color:var(--nav-ink, #16161A);
+      box-shadow:0 2px 8px rgba(0,0,0,.18);
+      transition:opacity .2s, transform .15s; }
+    .nav[hidden]{ display:none; }
+    .nav:active{ transform:translateY(-50%) scale(.9); }
+    .nav svg{ width:16px; height:16px; }
+    .nav.prev{ left:8px; } .nav.next{ right:8px; }
+    @media (hover:hover){
+      .thumb .nav{ opacity:0; }
+      .thumb:hover .nav, .thumb:focus-within .nav{ opacity:1; }
+    }
+    .dots{ position:absolute; left:0; right:0; bottom:8px; z-index:2;
+      display:flex; justify-content:center; gap:5px; pointer-events:none; }
+    .dots span{ width:6px; height:6px; border-radius:3px; background:rgba(255,255,255,.6);
+      box-shadow:0 0 3px rgba(0,0,0,.35); transition:width .25s, background .25s; }
+    .dots span.on{ width:16px; background:var(--dot-on, #fff); }
+    .slides:focus-visible{ outline:2px solid var(--dot-on, #fff); outline-offset:-4px; }
+  `;
+  document.head.appendChild(css);
 
   // Darken the search bar background once it sticks to the top
   const wrap = $('searchWrap');
