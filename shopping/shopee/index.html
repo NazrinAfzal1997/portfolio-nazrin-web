@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopee Finds</title>
+<meta name="description" content="Every product from my videos on Shopee. Search by code number or product name.">
+<meta name="theme-color" content="#FFF8F5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23EE4D2D'/%3E%3Cpath d='M18 26h28l-2.4 22H20.4z' fill='%23fff'/%3E%3Cpath d='M25 26v-3a7 7 0 0 1 14 0v3' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --orange: #EE4D2D;
+  --orange-2: #FF7337;
+  --orange-press: #D73211;
+  --orange-soft: #FFF1EC;
+  --hero-top: #FFF8F5;
+  --hero-bottom: #FFE8DE;
+  --hero-ink: #2B1D18;
+  --hero-dim: #7A625A;
+  --hero-deco: rgba(238,77,45,.07);
+
+  --bg: #F5F5F5;
+  --card: #FFFFFF;
+  --ink: #222222;
+  --ink-dim: #757575;
+  --line: rgba(0,0,0,.08);
+  --shadow: 0 1px 2px rgba(0,0,0,.06);
+  --shadow-hover: 0 4px 16px rgba(0,0,0,.10);
+
+  --radius: 6px;
+  --font: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg: #141414;
+    --card: #1F1F1F;
+    --ink: #F0F0F0;
+    --ink-dim: #A0A0A0;
+    --line: rgba(255,255,255,.09);
+    --orange-soft: rgba(238,77,45,.14);
+    --hero-top: #1E1512;
+    --hero-bottom: #2A1A14;
+    --hero-ink: #F6ECE8;
+    --hero-dim: #B8A39B;
+    --hero-deco: rgba(238,77,45,.10);
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,.5);
+  }
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+button, input{ font: inherit; color: inherit; }
+
+/* ---------- Soft peach header (orange as accent only) ---------- */
+.hero{
+  position: relative;
+  background:
+    radial-gradient(circle at 88% -10%, rgba(255,115,55,.16), transparent 45%),
+    linear-gradient(-180deg, var(--hero-top), var(--hero-bottom));
+  color: var(--hero-ink);
+  padding: 36px 16px 70px;
+  text-align: center;
+  overflow: hidden;
+}
+/* soft decorative circles, like Shopee campaign banners */
+.hero::before, .hero::after{
+  content: ""; position: absolute; border-radius: 50%;
+  background: var(--hero-deco); pointer-events: none;
+}
+.hero::before{ width: 220px; height: 220px; left: -70px; bottom: -110px; }
+.hero::after{ width: 140px; height: 140px; right: -40px; top: 40px; }
+.hero > *{ position: relative; z-index: 1; }
+
+.back{
+  position: absolute; top: 14px; left: 14px;
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 32px; padding: 0 12px 0 8px; border-radius: 999px;
+  color: var(--hero-ink); text-decoration: none;
+  font-size: 13px; font-weight: 500;
+  background: rgba(238,77,45,.06);
+  border: 1px solid rgba(238,77,45,.20);
+  transition: background .2s var(--ease), color .2s var(--ease);
+}
+.back:hover{ background: rgba(238,77,45,.12); color: var(--orange); }
+.back svg{ width: 16px; height: 16px; }
+@media (max-width: 639px){ .hero{ padding-top: 58px; } }
+
+.eyebrow{
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--orange);
+  background: var(--card);
+  padding: 5px 12px; border-radius: 3px;
+  border: 1px solid rgba(238,77,45,.22);
+}
+.eyebrow svg{ width: 14px; height: 14px; }
+h1{
+  margin-top: 14px;
+  font-size: clamp(32px, 8vw, 50px);
+  font-weight: 900; letter-spacing: -.01em; line-height: 1.05;
+}
+h1 span{ color: var(--orange); }
+.hero p{
+  margin: 10px auto 0; max-width: 420px;
+  color: var(--hero-dim); font-size: 15px; line-height: 1.5;
+}
+
+/* ---------- Sticky search ---------- */
+.search-wrap{
+  position: sticky; top: 0; z-index: 10;
+  margin-top: -46px;
+  padding: 10px 16px;
+  transition: background .25s var(--ease), box-shadow .25s var(--ease);
+}
+.search-wrap.stuck{
+  background: color-mix(in srgb, var(--hero-bottom) 90%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 10px rgba(0,0,0,.10);
+}
+.search{
+  position: relative;
+  max-width: 640px; margin: 0 auto;
+  display: flex;
+  background: var(--card);
+  border-radius: 4px;
+  padding: 4px;
+  box-shadow: 0 6px 18px rgba(120,50,20,.10);
+  border: 2px solid rgba(238,77,45,.18);
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.search:focus-within{ border-color: var(--orange); box-shadow: 0 0 0 3px rgba(238,77,45,.15), 0 6px 18px rgba(120,50,20,.10); }
+.search input{
+  flex: 1; min-width: 0;
+  height: 44px;
+  padding: 0 40px 0 12px;
+  border: 0; background: transparent; color: var(--ink);
+  font-size: 16px; outline: none;
+}
+.search input::placeholder{ color: var(--ink-dim); }
+.search input::-webkit-search-cancel-button{ display:none; }
+.go{
+  flex: none;
+  width: 60px; height: 44px; border: 0; border-radius: 3px;
+  background: var(--orange); color: #fff;
+  display: grid; place-items: center; cursor: pointer;
+  transition: background .2s var(--ease);
+}
+.go:hover{ background: var(--orange-press); }
+.go svg{ width: 20px; height: 20px; }
+.clear{
+  position: absolute; right: 70px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 0; background: transparent; color: var(--ink-dim);
+  display: none; place-items: center; cursor: pointer;
+}
+.clear.show{ display: grid; }
+.clear:hover{ color: var(--ink); background: var(--bg); }
+
+/* ---------- Content ---------- */
+main{ max-width: 1080px; margin: 0 auto; padding: 6px 16px 48px; }
+
+/* Shopee-style underline tabs */
+.chips{
+  display: flex; gap: 4px; overflow-x: auto;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 0 6px;
+  margin-bottom: 12px;
+  scrollbar-width: none;
+}
+.chips::-webkit-scrollbar{ display:none; }
+@media (min-width: 640px){ .chips{ justify-content: center; } }
+.chip{
+  flex: none; position: relative;
+  height: 46px; padding: 0 14px;
+  border: 0; background: transparent; color: var(--ink);
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  transition: color .2s var(--ease);
+}
+.chip::after{
+  content: ""; position: absolute; left: 14px; right: 14px; bottom: 0;
+  height: 3px; border-radius: 3px 3px 0 0; background: var(--orange);
+  transform: scaleX(0); transition: transform .25s var(--ease);
+}
+.chip:hover{ color: var(--orange); }
+.chip[aria-pressed="true"]{ color: var(--orange); font-weight: 700; }
+.chip[aria-pressed="true"]::after{ transform: scaleX(1); }
+
+.meta{
+  font-size: 13px; color: var(--ink-dim);
+  margin: 2px 2px 10px;
+}
+
+.grid{
+  display: grid; gap: 8px;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+}
+@media (min-width: 640px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; } }
+@media (min-width: 960px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+
+.card{
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid transparent;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color .2s var(--ease), box-shadow .2s var(--ease), transform .2s var(--ease);
+  animation: pop .3s var(--ease) both;
+}
+.card:hover{ border-color: var(--orange); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+@keyframes pop{ from{ opacity:0; transform: translateY(6px); } }
+
+.thumb{
+  position: relative; aspect-ratio: 1/1;
+  background: var(--orange-soft);
+  overflow: hidden;
+}
+.thumb img{ width:100%; height:100%; object-fit: cover; display:block; }
+.ph{
+  width:100%; height:100%;
+  display: grid; place-items: center;
+  color: var(--orange);
+  background:
+    radial-gradient(circle at 70% 25%, rgba(255,115,55,.18), transparent 55%),
+    var(--orange-soft);
+}
+.ph svg{ width: 34%; height: 34%; opacity: .55; }
+
+/* code tag styled like Shopee's corner label */
+.code{
+  position: absolute; top: 0; left: 0;
+  background: var(--orange); color: #fff;
+  font-size: 13px; font-weight: 700;
+  padding: 4px 10px 4px 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.body{ padding: 10px 10px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.tag{
+  align-self: flex-start;
+  font-size: 11px; font-weight: 500;
+  color: var(--orange);
+  border: 1px solid var(--orange);
+  padding: 1px 6px; border-radius: 2px;
+}
+.name{
+  font-size: 14px; font-weight: 400; line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  min-height: calc(1.4em * 2);
+}
+.buy{
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  height: 40px; border-radius: 3px;
+  background: var(--orange); color: #fff;
+  font-size: 14px; font-weight: 500; text-decoration: none;
+  transition: background .2s var(--ease), transform .1s var(--ease);
+}
+.buy:hover{ background: var(--orange-press); }
+.buy:active{ transform: scale(.97); }
+.buy svg{ width: 16px; height: 16px; }
+
+.empty{
+  display: none;
+  text-align: center; padding: 48px 16px;
+  color: var(--ink-dim);
+}
+.empty.show{ display: block; }
+.empty .big{ width: 44px; height: 44px; color: var(--orange); }
+.empty h2{ margin-top: 10px; font-size: 18px; color: var(--ink); font-weight: 700; }
+.empty p{ margin-top: 6px; font-size: 14px; line-height: 1.5; }
+.empty button{
+  margin-top: 16px; height: 40px; padding: 0 20px; border-radius: 3px;
+  border: 0; background: var(--orange); color: #fff; font-weight: 500; cursor: pointer;
+}
+
+footer{
+  text-align: center; font-size: 12px; color: var(--ink-dim);
+  padding: 0 16px 32px; line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce){ .card{ animation: none; } }
+</style>
+</head>
+<body data-buy-label="Shop on Shopee">
+
+<header class="hero">
+  <a class="back" href="/shopping/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>All shops</a>
+  <span class="eyebrow">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+    Affiliate picks
+  </span>
+  <h1><span>Shopee</span> Finds</h1>
+  <p>Saw it in my video? Search the code number or the product name.</p>
+</header>
+
+<div class="search-wrap" id="searchWrap">
+  <div class="search">
+    <input id="q" type="search" inputmode="search" autocomplete="off" enterkeyhint="search"
+           placeholder="Search code or product name" aria-label="Search products by code or name">
+    <button class="clear" id="clear" type="button" aria-label="Clear search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <button class="go" type="button" aria-label="Search" onclick="document.getElementById('q').focus()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    </button>
+  </div>
+</div>
+
+<main>
+  <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
+  <div class="meta" id="meta" aria-live="polite"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">
+    <svg class="big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <h2>No item found</h2>
+    <p>Try the code number shown in the video,<br>or a shorter word from the product name.</p>
+    <button type="button" id="reset">Show all items</button>
+  </div>
+</main>
+
+<footer>As an affiliate, I may earn a small commission from purchases made through these links.</footer>
+
+<script src="products.js"></script>
+<script src="/shopping/finder.js"></script>
+</body>
+</html>

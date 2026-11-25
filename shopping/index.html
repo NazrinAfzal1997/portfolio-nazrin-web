@@ -146,9 +146,7 @@ a.shop:active{ transform: scale(.985); }
 .tiktok .cta{ background: var(--pink); color: #fff; }
 a.shop:hover .cta{ filter: brightness(.94); }
 .cta svg{ width: 16px; height: 16px; }
-.shopee .cta{ background: var(--line); color: var(--ink-dim); }
-.shopee{ cursor: default; }
-.shopee .banner{ filter: saturate(.75); }
+.shopee .cta{ background: var(--orange); color: #fff; }
 
 footer{
   text-align: center; font-size: 12px; color: var(--ink-dim);
@@ -181,30 +179,43 @@ footer{
     </div>
   </a>
 
-  <div class="shop shopee" aria-disabled="true">
+  <a class="shop shopee" href="/shopping/shopee/">
     <div class="banner">
       <span class="mark" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
       </span>
     </div>
     <div class="info">
-      <div class="row"><h2>Shopee</h2><span class="status soon">Coming soon</span></div>
-      <p>My Shopee picks are on the way.</p>
-      <span class="cta">Coming soon</span>
+      <div class="row"><h2>Shopee</h2><span class="status live">Live</span></div>
+      <p id="shopeeCount">Items from my videos, on Shopee.</p>
+      <span class="cta">Browse Shopee finds
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
     </div>
-  </div>
+  </a>
 </main>
 
 <footer>As an affiliate, I may earn a small commission from purchases made through these links.</footer>
 
-<script src="/shopping/tiktok/products.js"></script>
 <script>
-  // Show how many TikTok items there are (read from the TikTok product list)
-  (function(){
-    const n = (window.PRODUCTS || []).length;
-    if (n) document.getElementById('tiktokCount').textContent =
-      n + ' item' + (n === 1 ? '' : 's') + ' from my TikTok videos.';
-  })();
+  // Show each shop's item count, read from that shop's products.js.
+  // Both files set window.PRODUCTS, so load them one at a time.
+  function showCount(src, id, text){
+    return new Promise(done => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = () => {
+        const n = (window.PRODUCTS || []).length;
+        if (n) document.getElementById(id).textContent = n + ' item' + (n === 1 ? '' : 's') + ' ' + text;
+        window.PRODUCTS = undefined;
+        done();
+      };
+      s.onerror = done;
+      document.body.appendChild(s);
+    });
+  }
+  showCount('/shopping/tiktok/products.js', 'tiktokCount', 'from my TikTok videos.')
+    .then(() => showCount('/shopping/shopee/products.js', 'shopeeCount', 'from my videos, on Shopee.'));
 </script>
 </body>
 </html>
