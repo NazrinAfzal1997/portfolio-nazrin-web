@@ -1,0 +1,25 @@
+/*
+  TikTok affiliate products for nazrin-afzal.my/shopping/tiktok
+
+  One entry per product:
+    code      number shown in your TikTok video (searchable: "12", "#12", "012" all work)
+    name      product name (searchable)
+    category  short tag, e.g. "Beauty", "Home"; becomes a filter chip automatically
+    image     image URL, or a file path like "img/012.jpg" (leave "" for a placeholder)
+    link      your TikTok affiliate link
+    keywords  optional extra search words (other names, Malay words, brand), e.g. "botol air"
+
+  NOTE: the entries below are PLACEHOLDERS. Replace them with your real products.
+*/
+window.PRODUCTS = [
+  { code: 1,  name: "Velvet Matte Lip Tint",          category: "Beauty",  image: "", link: "#", keywords: "lipstick gincu" },
+  { code: 2,  name: "Stainless Steel Tumbler 900ml",  category: "Home",    image: "", link: "#", keywords: "botol air bottle" },
+  { code: 3,  name: "Oversized Cotton Tee",           category: "Fashion", image: "", link: "#", keywords: "baju t-shirt" },
+  { code: 4,  name: "Wireless Earbuds Pro",           category: "Gadget",  image: "", link: "#", keywords: "earphone bluetooth" },
+  { code: 5,  name: "Hydrating Sunscreen SPF50",      category: "Beauty",  image: "", link: "#", keywords: "sunblock" },
+  { code: 6,  name: "Foldable Laundry Basket",        category: "Home",    image: "", link: "#", keywords: "bakul baju" },
+  { code: 7,  name: "Bawal Instant Tudung",           category: "Fashion", image: "", link: "#", keywords: "hijab tudung" },
+  { code: 8,  name: "Mini Portable Fan",              category: "Gadget",  image: "", link: "#", keywords: "kipas" },
+  { code: 12, name: "Glass Food Container Set",       category: "Home",    image: "", link: "#", keywords: "bekas makanan" },
+  { code: 15, name: "Phone Tripod with Remote",       category: "Gadget",  image: "", link: "#", keywords: "stand" }
+];
