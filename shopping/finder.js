@@ -32,6 +32,7 @@
   let activeCat = 'All';
   let sortBy = 'default';   // default | code-asc | price-asc | price-desc | name
   let hotOnly = false;
+  let shown = false;        // false while the loading boxes are on screen
   const HAS_PRICE = PRODUCTS.some(p => !isNaN(p.priceNum));
   const HAS_HOT = PRODUCTS.some(p => p.hot);
   window.__PH = PH;
@@ -113,7 +114,7 @@
 
   const ARROW = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
   const imgTag = (src, alt) =>
-    `<img src="${esc(src)}" alt="${esc(alt)}" loading="lazy" draggable="false" onerror="this.replaceWith(document.createRange().createContextualFragment(window.__PH))">`;
+    `<img src="${esc(src)}" alt="${esc(alt)}" loading="lazy" draggable="false" onload="this.classList.add('ok')" onerror="this.replaceWith(document.createRange().createContextualFragment(window.__PH))">`;
 
   // Photos: `images: [...]` (several) or `image: "..."` (one)
   function photos(p){
@@ -130,7 +131,6 @@
       <div class="dots" aria-hidden="true">${imgs.map((_, k) => `<span${k ? '' : ' class="on"'}></span>`).join('')}</div>`;
   }
 
-  const money = n => 'RM' + n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const FLAME = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.5 2.2c.4 3.1-1.1 4.9-2.6 6.6C8.4 10.5 7 12.1 7 14.6 7 18 9.4 21 12.5 21s5.5-2.6 5.5-6.2c0-2.3-1-4.1-2.2-5.4-.2 1.4-.9 2.5-2 3.1.6-3.7-.3-7.6-1.3-10.3z"/></svg>';
 
   function card(p, i){
@@ -139,7 +139,6 @@
       <div class="body">
         ${p.groups.length ? `<div class="tags">${p.groups.map(g => `<span class="tag">${esc(g)}</span>`).join('')}</div>` : ''}
         <h3 class="name">${esc(p.name)}</h3>
-        ${isNaN(p.priceNum) ? '' : `<div class="price">${money(p.priceNum)}</div>`}
         <a class="buy" href="${esc(p.link || '#')}" target="_blank" rel="noopener sponsored">
           ${BUY_LABEL}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
@@ -149,6 +148,9 @@
   }
 
   function render(){
+    shown = true;
+    grid.removeAttribute('aria-busy');
+    meta.classList.remove('loading');
     const q = input.value;
     const results = search(q);
     grid.innerHTML = results.map(card).join('');
@@ -160,11 +162,7 @@
       ? `${n} ${hotOnly ? 'hot ' : ''}result${n === 1 ? '' : 's'} for “${q.trim()}”`
       : `${n} ${what}${activeCat === 'All' ? '' : ' in ' + activeCat}`;
     meta.style.visibility = n ? 'visible' : 'hidden';
-    if (sortSel){
-      // The first option reads "Best match" while searching, "Newest" otherwise
-      sortSel.options[0].textContent = q.trim() ? 'Best match' : 'Newest';
-      sortSel.value = sortBy;
-    }
+    if (sortBox) syncSort(q.trim() !== '');
     if (hotBtn) hotBtn.setAttribute('aria-pressed', hotOnly);
   }
 
@@ -197,7 +195,7 @@
   }
 
   // ---------- Sort menu + "Hot only" toggle (built here so both shops get them) ----------
-  let sortSel = null, hotBtn = null;
+  let sortBox = null, hotBtn = null, sortOpts = [];
   function buildToolbar(){
     const bar = document.createElement('div');
     bar.className = 'toolbar';
@@ -212,18 +210,67 @@
       hotBtn.addEventListener('click', () => { hotOnly = !hotOnly; render(); syncUrl(); });
       tools.appendChild(hotBtn);
     }
-    const opts = [['default', 'Newest'], ['code-asc', 'Code: low to high']];
-    if (HAS_PRICE) opts.push(['price-asc', 'Price: low to high'], ['price-desc', 'Price: high to low']);
-    opts.push(['name', 'Name: A to Z']);
-    if (!opts.some(o => o[0] === sortBy)) sortBy = 'default';
-    const lab = document.createElement('label');
-    lab.className = 'sort';
-    lab.innerHTML = `<span>Sort</span><select aria-label="Sort items">${opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>`;
-    sortSel = lab.querySelector('select');
-    sortSel.addEventListener('change', () => { sortBy = sortSel.value; render(); syncUrl(); });
-    tools.appendChild(lab);
+    sortOpts = [['default', 'Newest'], ['code-asc', 'Code: low to high']];
+    if (HAS_PRICE) sortOpts.push(['price-asc', 'Price: low to high'], ['price-desc', 'Price: high to low']);
+    sortOpts.push(['name', 'Name: A to Z']);
+    if (!sortOpts.some(o => o[0] === sortBy)) sortBy = 'default';
+
+    // Custom sort menu (the browser's own <select> list can't be themed)
+    const CHECK = '<svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+    sortBox = document.createElement('div');
+    sortBox.className = 'sort';
+    sortBox.innerHTML = `<button type="button" class="sort-btn" aria-haspopup="listbox" aria-expanded="false">
+        <svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3.5 16.5 7 20l3.5-3.5M17 20V4m-3.5 3.5L17 4l3.5 3.5"/></svg>
+        <span class="sv"></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+      </button>
+      <div class="sort-menu" role="listbox" aria-label="Sort items" tabindex="-1">
+        <div class="sort-head" aria-hidden="true">Sort by</div>
+        ${sortOpts.map(([v, t]) => `<div class="opt" role="option" tabindex="-1" data-v="${v}"><span>${t}</span>${CHECK}</div>`).join('')}
+      </div>`;
+    const btn = sortBox.querySelector('.sort-btn'), menu = sortBox.querySelector('.sort-menu');
+    const items = () => [...menu.querySelectorAll('.opt')];
+    const open = () => {
+      sortBox.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+      (menu.querySelector('[aria-selected="true"]') || items()[0]).focus();
+    };
+    const close = (refocus) => {
+      if (!sortBox.classList.contains('open')) return;
+      sortBox.classList.remove('open'); btn.setAttribute('aria-expanded', 'false');
+      if (refocus) btn.focus();
+    };
+    const pick = el => { sortBy = el.dataset.v; close(true); render(); syncUrl(); };
+    btn.addEventListener('click', () => sortBox.classList.contains('open') ? close(false) : open());
+    menu.addEventListener('click', e => { const o = e.target.closest('.opt'); if (o) pick(o); });
+    menu.addEventListener('keydown', e => {
+      const list = items(), k = list.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+        e.preventDefault();
+        list[(k + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length].focus();
+      } else if (e.key === 'Home' || e.key === 'End'){
+        e.preventDefault(); list[e.key === 'Home' ? 0 : list.length - 1].focus();
+      } else if ((e.key === 'Enter' || e.key === ' ') && k >= 0){
+        e.preventDefault(); pick(list[k]);
+      } else if (e.key === 'Escape'){ close(true); }
+      else if (e.key === 'Tab'){ close(false); }
+    });
+    btn.addEventListener('keydown', e => { if (e.key === 'ArrowDown'){ e.preventDefault(); open(); } });
+    document.addEventListener('pointerdown', e => { if (!sortBox.contains(e.target)) close(false); });
+    tools.appendChild(sortBox);
     bar.appendChild(tools);
+  }
+
+  // Button text + selected tick; the first option reads "Best match" while searching
+  function syncSort(searching){
+    const label = v => v === 'default' && searching ? 'Best match' : sortOpts.find(o => o[0] === v)[1];
+    // Shorter wording on the button so the row fits on small phones
+    const SHORT = { 'code-asc': 'Lowest code', 'price-asc': 'Lowest price', 'price-desc': 'Highest price', 'name': 'Name A–Z' };
+    sortBox.querySelector('.sv').textContent = SHORT[sortBy] || label(sortBy);
+    sortBox.querySelector('.sort-btn').setAttribute('aria-label', 'Sort: ' + label(sortBy));
+    sortBox.querySelectorAll('.opt').forEach(o => {
+      o.setAttribute('aria-selected', o.dataset.v === sortBy);
+      o.querySelector('span').textContent = label(o.dataset.v);
+    });
   }
 
   input.addEventListener('input', () => { render(); syncUrl(); });
@@ -246,7 +293,14 @@
     thumb.querySelectorAll('.dots span').forEach((d, j) => d.classList.toggle('on', j === k));
   }
   grid.addEventListener('click', e => {
-    const btn = e.target.closest('.nav'); if (!btn) return;
+    const btn = e.target.closest('.nav');
+    if (!btn){
+      // Tapping anywhere on a card opens the product (same as its buy button).
+      // Swiping photos scrolls instead of clicking, so it doesn't trigger this.
+      const card = e.target.closest('.card:not(.skel)');
+      if (card && !e.target.closest('a, button') && !getSelection().toString()) card.querySelector('.buy').click();
+      return;
+    }
     const track = btn.parentElement.querySelector('.slides');
     track.scrollBy({ left: (btn.classList.contains('next') ? 1 : -1) * track.clientWidth, behavior: 'smooth' });
   });
@@ -269,22 +323,48 @@
       flex-wrap:wrap; margin:4px 2px 14px; }
     .toolbar .meta{ margin:0; }
     .tools{ display:flex; align-items:center; gap:8px; margin-left:auto; }
-    .hot-toggle, .sort{ height:34px; border-radius:var(--ctl-radius, 999px);
+    .tools{ position:relative; z-index:5; }
+    .toolbar .meta{ white-space:nowrap; }
+    .hot-toggle, .sort-btn{ height:36px; border-radius:var(--ctl-radius, 999px);
       border:1px solid var(--line); background:var(--card); color:var(--ink);
-      font-size:13px; font-weight:600; }
-    .hot-toggle{ display:inline-flex; align-items:center; gap:5px; padding:0 12px 0 10px; cursor:pointer;
-      transition:background .2s, color .2s, border-color .2s; }
-    .hot-toggle svg{ width:14px; height:14px; color:var(--hot, #FF4D1A); transition:color .2s; }
-    .hot-toggle:hover{ border-color:var(--hot, #FF4D1A); }
-    .hot-toggle[aria-pressed="true"]{ background:var(--hot, #FF4D1A); border-color:var(--hot, #FF4D1A); color:#fff; }
-    .hot-toggle[aria-pressed="true"] svg{ color:#fff; }
-    .sort{ position:relative; display:inline-flex; align-items:center; padding-left:12px; cursor:pointer; }
-    .sort span{ color:var(--ink-dim); font-weight:500; }
-    .sort select{ appearance:none; -webkit-appearance:none; border:0; background:transparent; color:inherit;
-      font:inherit; height:100%; padding:0 30px 0 6px; cursor:pointer; outline:none; }
-    .sort select option{ color:#222; background:#fff; }
-    .sort svg{ position:absolute; right:10px; width:14px; height:14px; pointer-events:none; color:var(--ink-dim); }
-    .sort:focus-within{ border-color:var(--hot, #FF4D1A); }
+      font-size:13px; font-weight:600; cursor:pointer;
+      box-shadow:0 1px 2px rgba(0,0,0,.05);
+      transition:background .2s, color .2s, border-color .2s, box-shadow .2s; }
+    .hot-toggle{ display:inline-flex; align-items:center; gap:5px; padding:0 13px 0 11px; }
+    .hot-toggle svg{ width:14px; height:14px; color:var(--hot, #FF4D1A); transition:color .2s, transform .2s; }
+    .hot-toggle:hover, .sort-btn:hover{ border-color:color-mix(in srgb, var(--hot, #FF4D1A) 55%, var(--line)); }
+    .hot-toggle[aria-pressed="true"]{ background:var(--hot, #FF4D1A); border-color:var(--hot, #FF4D1A); color:#fff;
+      box-shadow:0 4px 12px color-mix(in srgb, var(--hot, #FF4D1A) 35%, transparent); }
+    .hot-toggle[aria-pressed="true"] svg{ color:#fff; transform:scale(1.15); }
+    .hot-toggle:focus-visible, .sort-btn:focus-visible{ outline:2px solid var(--hot, #FF4D1A); outline-offset:2px; }
+
+    .sort{ position:relative; }
+    .sort-btn{ display:inline-flex; align-items:center; gap:7px; padding:0 11px 0 12px; }
+    .sort-btn .si{ width:15px; height:15px; color:var(--hot, #FF4D1A); }
+    .sort-btn .chev{ width:14px; height:14px; color:var(--ink-dim); transition:transform .25s var(--ease, ease); }
+    .sort.open .sort-btn{ border-color:var(--hot, #FF4D1A);
+      box-shadow:0 0 0 3px color-mix(in srgb, var(--hot, #FF4D1A) 16%, transparent); }
+    .sort.open .chev{ transform:rotate(180deg); }
+    .sort-menu{ position:absolute; right:0; top:calc(100% + 8px); min-width:210px; padding:6px;
+      background:var(--card); color:var(--ink);
+      border:1px solid var(--line); border-radius:var(--menu-radius, 16px);
+      box-shadow:0 12px 32px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.08);
+      opacity:0; visibility:hidden; transform:translateY(-6px) scale(.97); transform-origin:top right;
+      transition:opacity .18s, transform .18s var(--ease, ease), visibility 0s .18s; outline:none; }
+    .sort.open .sort-menu{ opacity:1; visibility:visible; transform:none;
+      transition:opacity .18s, transform .18s var(--ease, ease); }
+    .sort-head{ padding:6px 10px 6px; font-size:11px; font-weight:700; letter-spacing:.08em;
+      text-transform:uppercase; color:var(--ink-dim); }
+    .opt{ display:flex; align-items:center; justify-content:space-between; gap:12px;
+      height:40px; padding:0 10px; border-radius:calc(var(--menu-radius, 16px) - 6px);
+      font-size:14px; font-weight:500; cursor:pointer; outline:none; white-space:nowrap;
+      transition:background .15s, color .15s; }
+    .opt:hover, .opt:focus-visible{ background:color-mix(in srgb, var(--ink) 6%, transparent); }
+    .opt .ck{ width:16px; height:16px; flex:none; opacity:0; transform:scale(.6); transition:opacity .15s, transform .2s; }
+    .opt[aria-selected="true"]{ color:var(--hot, #FF4D1A); font-weight:700;
+      background:color-mix(in srgb, var(--hot, #FF4D1A) 10%, transparent); }
+    .opt[aria-selected="true"] .ck{ opacity:1; transform:none; }
+    @media (prefers-reduced-motion: reduce){ .sort-menu, .sort-btn .chev{ transition:none; } }
     .hot{ position:absolute; top:var(--hot-top, 10px); right:var(--hot-right, 10px); z-index:2;
       display:inline-flex; align-items:center; gap:3px;
       background:var(--hot, #FF4D1A); color:#fff;
@@ -292,7 +372,27 @@
       padding:4px 8px 4px 6px; border-radius:var(--hot-radius, 999px);
       box-shadow:0 2px 6px rgba(0,0,0,.2); }
     .hot svg{ width:12px; height:12px; }
-    .price{ font-size:16px; font-weight:800; color:var(--price-ink, var(--ink)); letter-spacing:-.01em; }
+    /* Whole card is clickable */
+    .card:not(.skel){ cursor:pointer; }
+    .card:not(.skel):hover .buy{ filter:brightness(.92); }
+    /* Loading boxes: photo area and every text line shimmer */
+    .skel{ animation:none; pointer-events:none; }
+    .skel .thumb, .skel .bar, .meta.loading, .thumb:has(img:not(.ok)){
+      background:linear-gradient(100deg,
+        var(--skel, color-mix(in srgb, var(--ink) 7%, var(--card))) 30%,
+        var(--skel-shine, color-mix(in srgb, var(--ink) 2%, var(--card))) 50%,
+        var(--skel, color-mix(in srgb, var(--ink) 7%, var(--card))) 70%);
+      background-size:250% 100%;
+      animation:skel-shimmer 1.3s ease-in-out infinite; }
+    .meta.loading{ width:56px; height:12px; border-radius:6px; }
+    .skel .bar{ display:block; height:12px; border-radius:6px; }
+    .skel .bar.btn{ height:40px; margin-top:auto; border-radius:var(--ctl-radius, 999px); }
+    @keyframes skel-shimmer{ from{ background-position:100% 0; } to{ background-position:-50% 0; } }
+    .thumb img{ transition:opacity .3s; }
+    .thumb img:not(.ok){ opacity:0; }
+    @media (prefers-reduced-motion: reduce){
+      .skel .thumb, .skel .bar, .meta.loading, .thumb:has(img:not(.ok)){ animation:none; }
+    }
     .tags{ display:flex; flex-wrap:wrap; gap:4px 8px; }
     .slides{ display:flex; width:100%; height:100%; overflow-x:auto; scroll-snap-type:x mandatory;
       scrollbar-width:none; overscroll-behavior-x:contain; outline:none; }
@@ -327,11 +427,44 @@
   new IntersectionObserver(([e]) => wrap.classList.toggle('stuck', e.intersectionRatio < 1),
     { threshold: [1], rootMargin: '-1px 0px 0px 0px' }).observe(wrap);
 
+  // ---------- Loading boxes ----------
+  // Show 8 shimmering placeholder cards first, then swap in the real products once
+  // the first photos have loaded (at least ~0.5s so it doesn't flash, at most ~2.5s).
+  const SKELETON = `<div class="card skel" aria-hidden="true">
+      <div class="thumb"></div>
+      <div class="body">
+        <span class="bar" style="width:38%;height:10px"></span>
+        <span class="bar" style="width:92%"></span>
+        <span class="bar" style="width:64%"></span>
+        <span class="bar" style="width:44%;height:16px;margin-top:2px"></span>
+        <span class="bar btn"></span>
+      </div>
+    </div>`;
+  function showSkeleton(){
+    grid.innerHTML = SKELETON.repeat(8);
+    grid.setAttribute('aria-busy', 'true');
+    empty.classList.remove('show');
+    meta.textContent = '';
+    meta.classList.add('loading');   // shimmer bar where the item count goes
+    meta.style.visibility = 'visible';
+  }
+  function firstPhotosLoaded(){
+    const srcs = search(input.value).slice(0, 8).map(p =>
+      (Array.isArray(p.images) && p.images.length ? p.images[0] : p.image)).filter(Boolean);
+    return Promise.all(srcs.map(src => new Promise(done => {
+      const im = new Image(); im.onload = im.onerror = done; im.src = src;
+    })));
+  }
+
   const params = new URLSearchParams(location.search);
   input.value = params.get('q') || params.get('code') || '';
   sortBy = params.get('sort') || 'default';
   hotOnly = HAS_HOT && params.get('hot') === '1';
   buildToolbar();
   buildChips();
-  render();
+  showSkeleton();
+  // If the viewer searches, taps a tab or sorts before then, render() runs early and this is skipped
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  Promise.race([Promise.all([firstPhotosLoaded(), wait(500)]), wait(2500)])
+    .then(() => { if (!shown) render(); });
 })();
