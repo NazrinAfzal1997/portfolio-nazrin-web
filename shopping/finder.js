@@ -13,15 +13,27 @@
       tags,
       groups: [p.category, ...tags].filter(Boolean),   // every tab this product appears under
       codeNum: parseInt(String(p.code).replace(/\D/g,''), 10),
+      priceNum: toPrice(p.price),
+      hot: p.hot === true || p.hot === 'yes' || p.hot === 1,
       hay: norm([p.name, p.category, ...tags, p.keywords].filter(Boolean).join(' ')).split(' ')
     };
   });
   const PH = '<div class="ph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></div>';
 
+  // "12.9", 12.9, "RM12.90", "RM 1,299" -> number; anything else -> NaN (no price)
+  function toPrice(v){
+    if (v === undefined || v === null || v === '') return NaN;
+    return parseFloat(String(v).replace(/[^0-9.]/g, ''));
+  }
+
   const $ = id => document.getElementById(id);
   const input = $('q'), grid = $('grid'), chips = $('chips'), meta = $('meta'),
         empty = $('empty'), clearBtn = $('clear');
   let activeCat = 'All';
+  let sortBy = 'default';   // default | code-asc | price-asc | price-desc | name
+  let hotOnly = false;
+  const HAS_PRICE = PRODUCTS.some(p => !isNaN(p.priceNum));
+  const HAS_HOT = PRODUCTS.some(p => p.hot);
   window.__PH = PH;
 
   function norm(s){
@@ -67,9 +79,9 @@
     // "#12", "code 12", "kod 12", "no. 12" -> "12"
     const tokens = norm(q.replace(/#/g,' ')).split(' ')
       .filter(t => t && !['code','kod','no','number','nombor'].includes(t));
-    let list = PRODUCTS.filter(p => activeCat === 'All' || p.groups.includes(activeCat));
-    if (!tokens.length) return list.slice().sort((a,b) => b.codeNum - a.codeNum);
-    return list
+    let list = PRODUCTS.filter(p => (activeCat === 'All' || p.groups.includes(activeCat)) && (!hotOnly || p.hot));
+    if (!tokens.length) return sortList(list);
+    const matched = list
       .map(p => {
         let s = 0;
         for (const t of tokens){ const v = scoreToken(p, t); if (!v) return null; s += v; }
@@ -78,7 +90,26 @@
       .filter(Boolean)
       .sort((a,b) => b.s - a.s || a.p.codeNum - b.p.codeNum)
       .map(x => x.p);
+    // While searching, "default" keeps best-match order; any other choice re-sorts the matches
+    return sortBy === 'default' ? matched : sortList(matched);
   }
+
+  // Products without a price always go to the end of a price sort
+  function byPrice(dir){
+    return (a, b) => {
+      const x = a.priceNum, y = b.priceNum;
+      if (isNaN(x) || isNaN(y)) return isNaN(x) - isNaN(y) || b.codeNum - a.codeNum;
+      return (x - y) * dir || b.codeNum - a.codeNum;
+    };
+  }
+  const SORTS = {
+    'default':    (a, b) => b.codeNum - a.codeNum,
+    'code-asc':   (a, b) => a.codeNum - b.codeNum,
+    'price-asc':  byPrice(1),
+    'price-desc': byPrice(-1),
+    'name':       (a, b) => String(a.name).localeCompare(String(b.name)) || a.codeNum - b.codeNum
+  };
+  const sortList = list => list.slice().sort(SORTS[sortBy] || SORTS['default']);
 
   const ARROW = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
   const imgTag = (src, alt) =>
@@ -99,12 +130,16 @@
       <div class="dots" aria-hidden="true">${imgs.map((_, k) => `<span${k ? '' : ' class="on"'}></span>`).join('')}</div>`;
   }
 
+  const money = n => 'RM' + n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const FLAME = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.5 2.2c.4 3.1-1.1 4.9-2.6 6.6C8.4 10.5 7 12.1 7 14.6 7 18 9.4 21 12.5 21s5.5-2.6 5.5-6.2c0-2.3-1-4.1-2.2-5.4-.2 1.4-.9 2.5-2 3.1.6-3.7-.3-7.6-1.3-10.3z"/></svg>';
+
   function card(p, i){
     return `<article class="card" style="animation-delay:${Math.min(i,12)*30}ms">
-      <div class="thumb">${photos(p)}<span class="code">#${pad(p.codeNum)}</span></div>
+      <div class="thumb">${photos(p)}<span class="code">#${pad(p.codeNum)}</span>${p.hot ? `<span class="hot">${FLAME}Hot</span>` : ''}</div>
       <div class="body">
         ${p.groups.length ? `<div class="tags">${p.groups.map(g => `<span class="tag">${esc(g)}</span>`).join('')}</div>` : ''}
         <h3 class="name">${esc(p.name)}</h3>
+        ${isNaN(p.priceNum) ? '' : `<div class="price">${money(p.priceNum)}</div>`}
         <a class="buy" href="${esc(p.link || '#')}" target="_blank" rel="noopener sponsored">
           ${BUY_LABEL}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
@@ -120,10 +155,17 @@
     empty.classList.toggle('show', results.length === 0);
     clearBtn.classList.toggle('show', q.length > 0);
     const n = results.length;
+    const what = (hotOnly ? 'hot ' : '') + (n === 1 ? 'item' : 'items');
     meta.textContent = q.trim()
-      ? `${n} result${n === 1 ? '' : 's'} for “${q.trim()}”`
-      : `${n} item${n === 1 ? '' : 's'}${activeCat === 'All' ? '' : ' in ' + activeCat} · newest first`;
+      ? `${n} ${hotOnly ? 'hot ' : ''}result${n === 1 ? '' : 's'} for “${q.trim()}”`
+      : `${n} ${what}${activeCat === 'All' ? '' : ' in ' + activeCat}`;
     meta.style.visibility = n ? 'visible' : 'hidden';
+    if (sortSel){
+      // The first option reads "Best match" while searching, "Newest" otherwise
+      sortSel.options[0].textContent = q.trim() ? 'Best match' : 'Newest';
+      sortSel.value = sortBy;
+    }
+    if (hotBtn) hotBtn.setAttribute('aria-pressed', hotOnly);
   }
 
   // Keep ?q= in the URL so a search can be shared, e.g. /shopping/tiktok/?q=12
@@ -133,6 +175,9 @@
     urlTimer = setTimeout(() => {
       const u = new URL(location.href);
       input.value.trim() ? u.searchParams.set('q', input.value.trim()) : u.searchParams.delete('q');
+      sortBy !== 'default' ? u.searchParams.set('sort', sortBy) : u.searchParams.delete('sort');
+      hotOnly ? u.searchParams.set('hot', '1') : u.searchParams.delete('hot');
+      u.searchParams.delete('code');
       history.replaceState(null, '', u);
     }, 400);
   }
@@ -151,11 +196,41 @@
     });
   }
 
+  // ---------- Sort menu + "Hot only" toggle (built here so both shops get them) ----------
+  let sortSel = null, hotBtn = null;
+  function buildToolbar(){
+    const bar = document.createElement('div');
+    bar.className = 'toolbar';
+    meta.replaceWith(bar);
+    bar.appendChild(meta);
+    const tools = document.createElement('div');
+    tools.className = 'tools';
+    if (HAS_HOT){
+      hotBtn = document.createElement('button');
+      hotBtn.type = 'button'; hotBtn.className = 'hot-toggle';
+      hotBtn.innerHTML = FLAME + 'Hot only';
+      hotBtn.addEventListener('click', () => { hotOnly = !hotOnly; render(); syncUrl(); });
+      tools.appendChild(hotBtn);
+    }
+    const opts = [['default', 'Newest'], ['code-asc', 'Code: low to high']];
+    if (HAS_PRICE) opts.push(['price-asc', 'Price: low to high'], ['price-desc', 'Price: high to low']);
+    opts.push(['name', 'Name: A to Z']);
+    if (!opts.some(o => o[0] === sortBy)) sortBy = 'default';
+    const lab = document.createElement('label');
+    lab.className = 'sort';
+    lab.innerHTML = `<span>Sort</span><select aria-label="Sort items">${opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>`;
+    sortSel = lab.querySelector('select');
+    sortSel.addEventListener('change', () => { sortBy = sortSel.value; render(); syncUrl(); });
+    tools.appendChild(lab);
+    bar.appendChild(tools);
+  }
+
   input.addEventListener('input', () => { render(); syncUrl(); });
   input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
   clearBtn.addEventListener('click', () => { input.value = ''; render(); syncUrl(); input.focus(); });
   $('reset').addEventListener('click', () => {
-    input.value = ''; activeCat = 'All';
+    input.value = ''; activeCat = 'All'; hotOnly = false;
     chips.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x.dataset.cat === 'All'));
     render(); syncUrl();
   });
@@ -190,6 +265,34 @@
   // with --nav-bg, --nav-ink and --dot-on.
   const css = document.createElement('style');
   css.textContent = `
+    .toolbar{ display:flex; align-items:center; justify-content:space-between; gap:8px 12px;
+      flex-wrap:wrap; margin:4px 2px 14px; }
+    .toolbar .meta{ margin:0; }
+    .tools{ display:flex; align-items:center; gap:8px; margin-left:auto; }
+    .hot-toggle, .sort{ height:34px; border-radius:var(--ctl-radius, 999px);
+      border:1px solid var(--line); background:var(--card); color:var(--ink);
+      font-size:13px; font-weight:600; }
+    .hot-toggle{ display:inline-flex; align-items:center; gap:5px; padding:0 12px 0 10px; cursor:pointer;
+      transition:background .2s, color .2s, border-color .2s; }
+    .hot-toggle svg{ width:14px; height:14px; color:var(--hot, #FF4D1A); transition:color .2s; }
+    .hot-toggle:hover{ border-color:var(--hot, #FF4D1A); }
+    .hot-toggle[aria-pressed="true"]{ background:var(--hot, #FF4D1A); border-color:var(--hot, #FF4D1A); color:#fff; }
+    .hot-toggle[aria-pressed="true"] svg{ color:#fff; }
+    .sort{ position:relative; display:inline-flex; align-items:center; padding-left:12px; cursor:pointer; }
+    .sort span{ color:var(--ink-dim); font-weight:500; }
+    .sort select{ appearance:none; -webkit-appearance:none; border:0; background:transparent; color:inherit;
+      font:inherit; height:100%; padding:0 30px 0 6px; cursor:pointer; outline:none; }
+    .sort select option{ color:#222; background:#fff; }
+    .sort svg{ position:absolute; right:10px; width:14px; height:14px; pointer-events:none; color:var(--ink-dim); }
+    .sort:focus-within{ border-color:var(--hot, #FF4D1A); }
+    .hot{ position:absolute; top:var(--hot-top, 10px); right:var(--hot-right, 10px); z-index:2;
+      display:inline-flex; align-items:center; gap:3px;
+      background:var(--hot, #FF4D1A); color:#fff;
+      font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+      padding:4px 8px 4px 6px; border-radius:var(--hot-radius, 999px);
+      box-shadow:0 2px 6px rgba(0,0,0,.2); }
+    .hot svg{ width:12px; height:12px; }
+    .price{ font-size:16px; font-weight:800; color:var(--price-ink, var(--ink)); letter-spacing:-.01em; }
     .tags{ display:flex; flex-wrap:wrap; gap:4px 8px; }
     .slides{ display:flex; width:100%; height:100%; overflow-x:auto; scroll-snap-type:x mandatory;
       scrollbar-width:none; overscroll-behavior-x:contain; outline:none; }
@@ -226,6 +329,9 @@
 
   const params = new URLSearchParams(location.search);
   input.value = params.get('q') || params.get('code') || '';
+  sortBy = params.get('sort') || 'default';
+  hotOnly = HAS_HOT && params.get('hot') === '1';
+  buildToolbar();
   buildChips();
   render();
 })();
