@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- ears -->
+  <circle cx="9.5" cy="36" r="6" fill="#ffcfae" stroke="#d98f6e" stroke-width="2"/>
+  <circle cx="54.5" cy="36" r="6" fill="#ffcfae" stroke="#d98f6e" stroke-width="2"/>
+  <!-- head -->
+  <circle cx="32" cy="36" r="23" fill="#ffdcc2" stroke="#d98f6e" stroke-width="2.2"/>
+  <!-- hair curl -->
+  <path d="M30 13.5c-1.2-4.6 1.6-9 6-9.2 4-.2 6.4 3.6 4.6 6.6-1.4 2.3-4.6 2.2-5.2-.2" fill="none" stroke="#7a4b3a" stroke-width="2.8" stroke-linecap="round"/>
+  <!-- eyes: open + wink -->
+  <ellipse cx="23" cy="34" rx="3.6" ry="4.4" fill="#3b2a2f"/>
+  <circle cx="24.3" cy="32.4" r="1.4" fill="#fff"/>
+  <path d="M37.5 35c1.6-3 5.6-3 7.2 0" fill="none" stroke="#3b2a2f" stroke-width="2.6" stroke-linecap="round"/>
+  <!-- cheeks -->
+  <ellipse cx="17" cy="42.5" rx="4.4" ry="2.8" fill="#f7a3b4" opacity=".85"/>
+  <ellipse cx="47" cy="42.5" rx="4.4" ry="2.8" fill="#f7a3b4" opacity=".85"/>
+  <!-- mouth with tongue out -->
+  <path d="M25.5 44.5c3.6 4.2 9.4 4.2 13 0" fill="none" stroke="#3b2a2f" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M31 47.6c0 3.6 1.6 5.6 3.6 5.6s3.2-2 3-5.2c-2.2.6-4.4.6-6.6-.4Z" fill="#f26f8b" stroke="#3b2a2f" stroke-width="1.6" stroke-linejoin="round"/>
+</svg>
