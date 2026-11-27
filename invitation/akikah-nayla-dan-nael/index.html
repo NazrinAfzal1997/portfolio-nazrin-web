@@ -285,7 +285,7 @@ body.locked{ overflow:hidden; }
 
 /* ---------- music button ---------- */
 .music{
-  position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:40;
+  position:fixed; right:16px; bottom:calc(92px + env(safe-area-inset-bottom)); z-index:40;
   width:52px; height:52px; border-radius:50%;
   border:1px solid var(--pink);
   background:#fff; color:var(--pink-deep);
@@ -307,6 +307,38 @@ body.locked{ overflow:hidden; }
 @keyframes pulse{ from{ opacity:.8; transform:scale(1); } to{ opacity:0; transform:scale(1.45); } }
 .music:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
 
+/* ---------- bottom nav ---------- */
+.nav{
+  position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom)); z-index:40;
+  transform:translateX(-50%);
+  width:calc(100% - 32px); max-width:440px;
+  display:grid; grid-template-columns:repeat(5, 1fr);
+  padding:6px;
+  border-radius:24px;
+  background:rgba(255,253,249,.88);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  border:1px solid rgba(207,169,104,.25);
+  box-shadow:0 16px 36px -18px rgba(150,110,120,.55);
+}
+.nav[hidden]{ display:none; }
+.nav a{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:8px 2px 6px;
+  border-radius:18px;
+  font-family:var(--font-display); font-weight:500; font-size:.7rem; letter-spacing:.02em;
+  color:var(--ink-soft);
+  text-decoration:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:background .25s ease, color .25s ease;
+}
+.nav svg{ width:21px; height:21px; transition:transform .25s ease; }
+.nav a:hover{ color:var(--pink-deep); }
+.nav a.active{ background:var(--pink-soft); color:var(--pink-deep); }
+.nav a.active svg{ transform:translateY(-1px) scale(1.08); }
+.nav a:focus-visible{ outline:2px solid var(--gold); outline-offset:1px; }
+main{ padding-bottom:120px !important; }
+section[id]{ scroll-margin-top:16px; }
+
 /* ---------- reveal ---------- */
 .js .reveal{ opacity:0; transform:translateY(18px); transition:opacity .8s ease, transform .8s ease; }
 .js .reveal.in{ opacity:1; transform:none; }
@@ -320,6 +352,7 @@ body.locked{ overflow:hidden; }
   .details{ grid-template-columns:1fr 1fr; }
   .details .detail.wide{ grid-column:1 / -1; }
   .countdown div{ min-width:86px; }
+  .music{ bottom:calc(20px + env(safe-area-inset-bottom)); right:24px; }
   .c1{ width:220px; left:3%; }
   .c2{ width:260px; right:2%; }
   .c3{ width:200px; left:6%; }
@@ -331,6 +364,8 @@ body.locked{ overflow:hidden; }
   .btn{ transition:none; }
   .cover-baby, .music[aria-pressed="true"]::after{ animation:none; }
   .js .cover{ transition:none; }
+  html{ scroll-behavior:auto; }
+  .nav a, .nav svg{ transition:none; }
 }
 </style>
 </head>
@@ -369,7 +404,7 @@ body.locked{ overflow:hidden; }
 <main>
 
   <!-- HERO -->
-  <section class="card hero reveal" tabindex="-1">
+  <section class="card hero reveal" id="utama" tabindex="-1">
     <p class="bismillah" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
     <p class="bismillah-ms">Dengan nama Allah Yang Maha Pemurah lagi Maha Penyayang</p>
 
@@ -395,7 +430,7 @@ body.locked{ overflow:hidden; }
   </section>
 
   <!-- BABIES -->
-  <section class="card reveal" aria-labelledby="h-babies">
+  <section class="card reveal" id="bayi" aria-labelledby="h-babies">
     <p class="eyebrow" id="h-babies">Cahaya Mata Kami</p>
     <div class="babies">
       <article class="baby girl">
@@ -420,7 +455,7 @@ body.locked{ overflow:hidden; }
   </section>
 
   <!-- DETAILS -->
-  <section class="card reveal" aria-labelledby="h-details">
+  <section class="card reveal" id="majlis" aria-labelledby="h-details">
     <p class="eyebrow" id="h-details">Butiran Majlis</p>
     <div class="details">
       <div class="detail">
@@ -447,7 +482,7 @@ body.locked{ overflow:hidden; }
   </section>
 
   <!-- DOA -->
-  <section class="card reveal" aria-labelledby="h-doa">
+  <section class="card reveal" id="doa" aria-labelledby="h-doa">
     <p class="eyebrow" id="h-doa">Doa Untuk Si Kecil</p>
 
     <div class="doa">
@@ -464,7 +499,7 @@ body.locked{ overflow:hidden; }
   </section>
 
   <!-- LOCATION -->
-  <section class="card reveal" aria-labelledby="h-loc">
+  <section class="card reveal" id="lokasi" aria-labelledby="h-loc">
     <p class="eyebrow" id="h-loc">Lokasi</p>
     <div class="map">
       <iframe title="Peta lokasi majlis" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
@@ -498,6 +533,14 @@ body.locked{ overflow:hidden; }
   <footer>Semoga Nayla &amp; Nael membesar menjadi anak yang soleh dan solehah.</footer>
 </main>
 
+<nav class="nav" id="nav" aria-label="Navigasi jemputan" hidden>
+  <a href="#utama" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h14V9"/><path d="M10 20v-5h4v5"/></svg>Utama</a>
+  <a href="#bayi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="7.5"/><path d="M12 5.5c-.6-2 .6-3.4 2-3"/><circle cx="9.5" cy="12.5" r=".6" fill="currentColor"/><circle cx="14.5" cy="12.5" r=".6" fill="currentColor"/><path d="M10 16c1.2 1 2.8 1 4 0"/></svg>Si Kecil</a>
+  <a href="#majlis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>Majlis</a>
+  <a href="#doa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 10.5 4a6.5 6.5 0 0 0 9.5 10.5Z"/><path d="m17 3 .7 1.8 1.8.7-1.8.7L17 8l-.7-1.8-1.8-.7 1.8-.7Z"/></svg>Doa</a>
+  <a href="#lokasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Lokasi</a>
+</nav>
+
 <script>
 (function(){
   // countdown — TODO: update if the start time changes (Malaysia time, UTC+8)
@@ -522,6 +565,22 @@ body.locked{ overflow:hidden; }
     setTimeout(tick, 1000);
   }
   tick();
+
+  // bottom nav: highlight the section in view
+  var links = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){
+    var y = window.innerHeight * .35, cur = 0;
+    secs.forEach(function(sec, i){ if (sec && sec.getBoundingClientRect().top <= y) cur = i; });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) cur = secs.length - 1;
+    links.forEach(function(a, i){
+      a.classList.toggle('active', i === cur);
+      if (i === cur) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+    });
+  }
+  window.addEventListener('scroll', spy, { passive:true });
+  window.addEventListener('resize', spy);
+  spy();
 
   // reveal on scroll
   var items = document.querySelectorAll('.reveal');
@@ -654,6 +713,7 @@ body.locked{ overflow:hidden; }
     cover.classList.add('gone');
     document.body.classList.remove('locked');
     btn.hidden = false;
+    document.getElementById('nav').hidden = false;
     play();
     setTimeout(function(){ cover.hidden = true; }, 900);
     var h = document.querySelector('.hero'); if (h) h.focus({ preventScroll:true });
